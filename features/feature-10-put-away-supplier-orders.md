@@ -5,7 +5,7 @@
 **Status:** Draft
 **Created:** 2026-09-28
 **Input:** Put received products into storage slots and update inventory.
-**Depends on:** [Feature 11 — Receive Supplier Orders](feature-11-receive-supplier-orders.md); [Feature 11 — Find Empty Slot](feature-11-find-empty-slot.md); [Feature 9 — Maintain Inventory](feature-9-maintain-inventory.md)
+**Depends on:** [Feature 11 — Receive Supplier Orders](feature-11-receive-supplier-orders.md); [Feature 14 — Find Empty Slot](feature-14-find-empty-slot.md); [Feature 9 — Maintain Inventory](feature-9-maintain-inventory.md)
 
 ---
 
