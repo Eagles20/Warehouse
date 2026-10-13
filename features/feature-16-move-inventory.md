@@ -5,7 +5,7 @@
 **Status:** Draft
 **Created:** 2026-09-28
 **Input:** Move inventory from one storage slot to another.
-**Depends on:** [Feature 13 — Find Empty Slot](feature-13-find-empty-slot.md); [Feature 9 — Maintain Inventory](feature-9-maintain-inventory.md)
+**Depends on:** [Feature 14 — Find Empty Slot](feature-14-find-empty-slot.md); [Feature 9 — Maintain Inventory](feature-9-maintain-inventory.md)
 
 ---
 
