@@ -4,7 +4,7 @@ App-wide quality targets for the **Warehouse** system.
 
 **Source:** Warehouse requirements and the detailed requirement codes in [NFR.md](NFR.md).
 
-**Policy:** Feature specs say *what* to build. This table says *how good* the system should be. Only **Accepted** rows (and feature **Functional Requirements** and **Success Criteria**) limit the implementation. **Deferred** is the quality backlog. **Out of scope** is what we do not build.
+**Policy:** Feature specs say what to build. This table says how good the system should be. Only **Accepted** rows (and feature **Functional Requirements** and **Success Criteria**) limit the implementation. **Deferred** is the quality backlog. **Out of scope** is what we do not build.
 
 **Draft values:** The numbers are based on a small warehouse. Please check them with the instructor.
 
