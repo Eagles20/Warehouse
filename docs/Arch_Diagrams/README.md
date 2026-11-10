@@ -1,4 +1,4 @@
-# Architecture diagrams (C4 model)
+# Architecture diagrams 
 
 These diagrams use the C4 model: each level zooms in one step. They are a **draft proposal** and follow the decisions in the [ADRs](../ADRs/README.md). The technology (Java, Spring Boot, React, PostgreSQL) is proposed in [ADR-002](../ADRs/ADR-002-technology-stack.md) and can change.
 
