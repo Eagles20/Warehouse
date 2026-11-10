@@ -1,8 +1,8 @@
 # ADR-003: Use REST JSON API rules for every feature
 
 **Status:** Proposed
-**Date:** 2026-11-04
-**Related features:** All features (API Requirements sections)
+**Date:** 2026-11-06
+**Related features:** All features 
 
 ## Context
 
