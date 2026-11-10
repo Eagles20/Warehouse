@@ -1,7 +1,7 @@
 # ADR-004: Each piece of data has exactly one owning feature
 
 **Status:** Proposed
-**Date:** 2026-11-04
+**Date:** 2026-11-06
 **Related features:** All features (Data Ownership sections)
 
 ## Context
