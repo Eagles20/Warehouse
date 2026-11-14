@@ -1,0 +1,42 @@
+classDiagram
+direction LR
+class InventoryService {
+  +adjust(recordId, delta, reason, source) InventoryRecord
+  +create(itemId, slotId, quantity, receivedDate, expirationDate, reason) InventoryRecord
+  +getAvailable(itemId) int
+  +sumReserved(recordId) int
+  +findPickableRecords(itemId) List~InventoryRecord~
+}
+class InventoryRecord {
+  +String inventoryRecordId
+  +String itemId
+  +String slotId
+  +int quantityOnHand
+  +Date receivedDate
+  +Date expirationDate
+  +boolean isActive
+  +int version
+}
+class InventoryChange {
+  +String employeeId
+  +Instant changedAt
+  +int oldQuantity
+  +int newQuantity
+  +String reason
+  +String sourceFeature
+}
+class SlotService {
+  +setSlotStatus(slotId, status)
+}
+class AuditLog {
+  +append(entry)
+}
+class InventoryRepository {
+  +lockById(recordId) InventoryRecord
+  +save(record)
+}
+InventoryService --> InventoryRepository : uses
+InventoryService --> SlotService : same transaction
+InventoryService --> AuditLog : same transaction
+InventoryService ..> InventoryRecord : changes
+InventoryRecord "1" --> "*" InventoryChange : history
