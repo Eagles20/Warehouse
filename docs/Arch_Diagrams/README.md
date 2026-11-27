@@ -1,6 +1,6 @@
 # Architecture diagrams (C4)
 
-C4 views of the Warehouse system, in the same set as the POS Speckit example.
+C4 views of the Warehouse system.
 
 **Shape of the system:** one web application and one PostgreSQL database. Employees use it from separate devices (office computer, tablet, handheld, phone). See [ADR-001](../adr/0001-modular-monolith.md) and [ADR-002](../adr/0002-technology-stack.md).
 
