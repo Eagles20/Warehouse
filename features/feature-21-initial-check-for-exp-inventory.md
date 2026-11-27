@@ -180,7 +180,7 @@
 
 ## API Requirements
 
-Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/NFR.md)).
+Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/adr/0003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/nfr/nfr.md)).
 
 | # | Method and path | Purpose | Allowed roles | Success | Errors | Supports |
 |---|---|---|---|---|---|---|
@@ -203,17 +203,17 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 ## Screen Requirements
 
-The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wireframe: it shows layout and content, not final colors.
+The screen images are in [docs/ui](../docs/ui/README.md). Each image is a wireframe: it shows layout and content, not final colors.
 
 | Screen | Name | Device | Purpose | Image | Stories |
 |---|---|---|---|---|---|
-| SCR-21.1 | Expired Inventory | Office computer | Find expired stock and create a removal list. | [image](../docs/UI/images/scr-21-1-expired-inventory.png) | US-21.1, US-21.3 |
-| SCR-21.2 | Expiring Soon | Office computer | Plan for stock that expires within a number of days. | [image](../docs/UI/images/scr-21-2-expiring-soon.png) | US-21.2 |
-| SCR-21.3 | Nothing Expired | Office computer | Tell the clerk that no inventory is expired. | [image](../docs/UI/images/scr-21-3-nothing-expired.png) | US-21.1 |
+| SCR-21.1 | Expired Inventory | Office computer | Find expired stock and create a removal list. | [image](../docs/ui/images/scr-21-1-expired-inventory.png) | US-21.1, US-21.3 |
+| SCR-21.2 | Expiring Soon | Office computer | Plan for stock that expires within a number of days. | [image](../docs/ui/images/scr-21-2-expiring-soon.png) | US-21.2 |
+| SCR-21.3 | Nothing Expired | Office computer | Tell the clerk that no inventory is expired. | [image](../docs/ui/images/scr-21-3-nothing-expired.png) | US-21.1 |
 
 ### SCR-21.1 — Expired Inventory
 
-![SCR-21.1 Expired Inventory](../docs/UI/images/scr-21-1-expired-inventory.png)
+![SCR-21.1 Expired Inventory](../docs/ui/images/scr-21-1-expired-inventory.png)
 
 **Device:** Office computer. **Purpose:** Find expired stock and create a removal list.
 
@@ -224,7 +224,7 @@ The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wirefr
 
 ### SCR-21.2 — Expiring Soon
 
-![SCR-21.2 Expiring Soon](../docs/UI/images/scr-21-2-expiring-soon.png)
+![SCR-21.2 Expiring Soon](../docs/ui/images/scr-21-2-expiring-soon.png)
 
 **Device:** Office computer. **Purpose:** Plan for stock that expires within a number of days.
 
@@ -234,7 +234,7 @@ The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wirefr
 
 ### SCR-21.3 — Nothing Expired
 
-![SCR-21.3 Nothing Expired](../docs/UI/images/scr-21-3-nothing-expired.png)
+![SCR-21.3 Nothing Expired](../docs/ui/images/scr-21-3-nothing-expired.png)
 
 **Device:** Office computer. **Purpose:** Tell the clerk that no inventory is expired.
 
@@ -252,12 +252,12 @@ This feature is done when all of these are true:
 - [ ] All 6 Gherkin scenarios are automated and pass in the build.
 - [ ] The 5 API endpoints match the API Requirements table, are in the OpenAPI file, and have tests for success and for every listed error.
 - [ ] The role rules are enforced on the server for every endpoint, with a test for a role that is not allowed.
-- [ ] The screens (SCR-21.1, SCR-21.2, SCR-21.3) match the images in `docs/UI`, and were checked on: office computer.
+- [ ] The screens (SCR-21.1, SCR-21.2, SCR-21.3) match the images in `docs/ui`, and were checked on: office computer.
 - [ ] Validation messages show next to the field, and what the user typed stays on the screen after an error.
 - [ ] Database changes (tables, keys, unique rules, not-null rules, checks) are in a migration script and match the Initial Data Model.
 - [ ] Every create, edit, delete, and status change writes an audit log entry (who, when, what changed).
 - [ ] A date-boundary test covers: expires yesterday, today, tomorrow, 30 days from now, and 31 days from now.
-- [ ] These non-functional checks pass (see [NFR](../docs/NFR.md)): NFR-U1, NFR-U7, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-A1, NFR-M1.
+- [ ] These non-functional checks pass (see [NFR](../docs/nfr/nfr.md)): NFR-U1, NFR-U7, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-A1, NFR-M1.
 - [ ] The code is reviewed in a pull request and merged into `main` with no open critical bugs.
 - [ ] This feature file, the UI images, and the API table are updated if anything changed during the build.
 

@@ -165,7 +165,7 @@
 
 ## API Requirements
 
-Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/NFR.md)).
+Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/adr/0003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/nfr/nfr.md)).
 
 | # | Method and path | Purpose | Allowed roles | Success | Errors | Supports |
 |---|---|---|---|---|---|---|
@@ -184,17 +184,17 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 ## Screen Requirements
 
-The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wireframe: it shows layout and content, not final colors.
+The screen images are in [docs/ui](../docs/ui/README.md). Each image is a wireframe: it shows layout and content, not final colors.
 
 | Screen | Name | Device | Purpose | Image | Stories |
 |---|---|---|---|---|---|
-| SCR-13.1 | Find Item | Handheld device | Scan or type to find an item. | [image](../docs/UI/images/scr-13-1-find-item.png) | US-13.1 |
-| SCR-13.2 | Item Locations | Handheld device | Show where the item is, oldest stock first. | [image](../docs/UI/images/scr-13-2-item-locations.png) | US-13.2 |
-| SCR-13.3 | Not in Stock | Handheld device | Tell the worker the item is not in any slot. | [image](../docs/UI/images/scr-13-3-not-in-stock.png) | US-13.2 |
+| SCR-13.1 | Find Item | Handheld device | Scan or type to find an item. | [image](../docs/ui/images/scr-13-1-find-item.png) | US-13.1 |
+| SCR-13.2 | Item Locations | Handheld device | Show where the item is, oldest stock first. | [image](../docs/ui/images/scr-13-2-item-locations.png) | US-13.2 |
+| SCR-13.3 | Not in Stock | Handheld device | Tell the worker the item is not in any slot. | [image](../docs/ui/images/scr-13-3-not-in-stock.png) | US-13.2 |
 
 ### SCR-13.1 — Find Item
 
-![SCR-13.1 Find Item](../docs/UI/images/scr-13-1-find-item.png)
+![SCR-13.1 Find Item](../docs/ui/images/scr-13-1-find-item.png)
 
 **Device:** Handheld device. **Purpose:** Scan or type to find an item.
 
@@ -204,7 +204,7 @@ The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wirefr
 
 ### SCR-13.2 — Item Locations
 
-![SCR-13.2 Item Locations](../docs/UI/images/scr-13-2-item-locations.png)
+![SCR-13.2 Item Locations](../docs/ui/images/scr-13-2-item-locations.png)
 
 **Device:** Handheld device. **Purpose:** Show where the item is, oldest stock first.
 
@@ -214,7 +214,7 @@ The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wirefr
 
 ### SCR-13.3 — Not in Stock
 
-![SCR-13.3 Not in Stock](../docs/UI/images/scr-13-3-not-in-stock.png)
+![SCR-13.3 Not in Stock](../docs/ui/images/scr-13-3-not-in-stock.png)
 
 **Device:** Handheld device. **Purpose:** Tell the worker the item is not in any slot.
 
@@ -232,12 +232,12 @@ This feature is done when all of these are true:
 - [ ] All 7 Gherkin scenarios are automated and pass in the build.
 - [ ] The 2 API endpoints match the API Requirements table, are in the OpenAPI file, and have tests for success and for every listed error.
 - [ ] The role rules are enforced on the server for every endpoint, with a test for a role that is not allowed.
-- [ ] The screens (SCR-13.1, SCR-13.2, SCR-13.3) match the images in `docs/UI`, and were checked on: handheld device.
+- [ ] The screens (SCR-13.1, SCR-13.2, SCR-13.3) match the images in `docs/ui`, and were checked on: handheld device.
 - [ ] Validation messages show next to the field, and what the user typed stays on the screen after an error.
 - [ ] Database changes (tables, keys, unique rules, not-null rules, checks) are in a migration script and match the Initial Data Model.
 - [ ] The feature changes no data: a test shows that no table is changed by any of its endpoints.
 - [ ] The feature is checked with a real barcode scanner or a keyboard-wedge scanner simulator.
-- [ ] These non-functional checks pass (see [NFR](../docs/NFR.md)): NFR-U2, NFR-U4, NFR-U9, NFR-P1, NFR-P2, NFR-S1, NFR-S2, NFR-S4, NFR-M1.
+- [ ] These non-functional checks pass (see [NFR](../docs/nfr/nfr.md)): NFR-U2, NFR-U4, NFR-U9, NFR-P1, NFR-P2, NFR-S1, NFR-S2, NFR-S4, NFR-M1.
 - [ ] The code is reviewed in a pull request and merged into `main` with no open critical bugs.
 - [ ] This feature file, the UI images, and the API table are updated if anything changed during the build.
 

@@ -58,8 +58,8 @@
 
 ## Assumptions
 
-- **A-1:** Only supplier orders with status Sent can be received. The worker finds the order by order number or by supplier name.
-- **A-2:** One order is received in one visit. The worker records a received quantity for every line, then completes the receipt.
+- **A-1:** Only supplier orders with status Sent can be received. The worker finds the order by scanning the order label or by typing the order number or supplier name. The scan box is focused when the screen opens (ADR-012).
+- **A-2:** One order is received in one visit. Each line has a quantity field the worker can type or change, and a date field when the item has a shelf life. Scanning a UPC jumps to that line. The worker records a received quantity for every line, then completes the receipt.
 - **A-3:** A line with nothing delivered is recorded with quantity received 0. It is not left empty.
 - **A-4:** The order becomes Received when every line has a received quantity, even when some quantities differ from the ordered quantity. The difference is a receiving exception, not a reason to keep the order open (FR-008).
 - **A-5:** Items with a shelf life (`shelf_life_days` is set in Feature 3) need an expiration date. Items without a shelf life do not ask for one. The expiration date must be after the receiving date.
@@ -205,7 +205,7 @@
 
 ## API Requirements
 
-Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/NFR.md)).
+Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/adr/0003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/nfr/nfr.md)).
 
 | # | Method and path | Purpose | Allowed roles | Success | Errors | Supports |
 |---|---|---|---|---|---|---|
@@ -227,31 +227,32 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 ## Screen Requirements
 
-The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wireframe: it shows layout and content, not final colors.
+The screen images are in [docs/ui](../docs/ui/README.md). Each image is a wireframe: it shows layout and content, not final colors.
 
 | Screen | Name | Device | Purpose | Image | Stories |
 |---|---|---|---|---|---|
-| SCR-8.1 | Orders to Receive | Handheld device | Choose the supplier order that arrived. | [image](../docs/UI/images/scr-8-1-orders-to-receive.png) | US-8.1 |
-| SCR-8.2 | Receive Order Lines | Handheld device | Enter the quantity received (and expiration date) for each line. | [image](../docs/UI/images/scr-8-2-receive-order-lines.png) | US-8.2, US-8.1 |
-| SCR-8.3 | Receiving Exceptions | Office computer | Show lines where received and ordered quantities differ. | [image](../docs/UI/images/scr-8-3-receiving-exceptions.png) | US-8.3 |
+| SCR-8.1 | Orders to Receive | Handheld device | Choose the supplier order that arrived. | [image](../docs/ui/images/scr-8-1-orders-to-receive.png) | US-8.1 |
+| SCR-8.2 | Receive Order Lines | Handheld device | Enter the quantity received (and expiration date) for each line. | [image](../docs/ui/images/scr-8-2-receive-order-lines.png) | US-8.2, US-8.1 |
+| SCR-8.3 | Receiving Exceptions | Office computer | Show lines where received and ordered quantities differ. | [image](../docs/ui/images/scr-8-3-receiving-exceptions.png) | US-8.3 |
 
 ### SCR-8.1 — Orders to Receive
 
-![SCR-8.1 Orders to Receive](../docs/UI/images/scr-8-1-orders-to-receive.png)
+![SCR-8.1 Orders to Receive](../docs/ui/images/scr-8-1-orders-to-receive.png)
 
 **Device:** Handheld device. **Purpose:** Choose the supplier order that arrived.
 
-- Search box (Order number or supplier).
-- List of cards: SO-2041  Prairie Supply Co.; SO-2043  Sweet Route Candy.
+- Scan box (focused): scan the order label, or type the order number or supplier, then Enter (ADR-012).
+- List of cards: SO-2041  Prairie Supply Co.; SO-2043  Sweet Route Candy. Tapping a card opens the lines.
 
 ### SCR-8.2 — Receive Order Lines
 
-![SCR-8.2 Receive Order Lines](../docs/UI/images/scr-8-2-receive-order-lines.png)
+![SCR-8.2 Receive Order Lines](../docs/ui/images/scr-8-2-receive-order-lines.png)
 
 **Device:** Handheld device. **Purpose:** Enter the quantity received (and expiration date) for each line.
 
+- Scan box (focused): scan a UPC to jump to that line. The worker can also tap a line.
 - Details shown: Order, Supplier.
-- List of cards: Cola 12 oz can; Potato chips 8 oz; Mint gum 5-pack.
+- Each line is a card with the item name, quantity ordered (read only), a **Received** number field the worker types, and an **Exp** date field when the item has a shelf life. Brackets around a number are not enough; Received and Exp are inputs.
 - Message (warn): 2 lines are different from the order. A manager will see them in the exceptions list.
 - Buttons: Complete receipt, Cancel.
 - Complete is enabled only when every line has a quantity.
@@ -259,7 +260,7 @@ The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wirefr
 
 ### SCR-8.3 — Receiving Exceptions
 
-![SCR-8.3 Receiving Exceptions](../docs/UI/images/scr-8-3-receiving-exceptions.png)
+![SCR-8.3 Receiving Exceptions](../docs/ui/images/scr-8-3-receiving-exceptions.png)
 
 **Device:** Office computer. **Purpose:** Show lines where received and ordered quantities differ.
 
@@ -277,12 +278,12 @@ This feature is done when all of these are true:
 - [ ] All 9 Gherkin scenarios are automated and pass in the build.
 - [ ] The 4 API endpoints match the API Requirements table, are in the OpenAPI file, and have tests for success and for every listed error.
 - [ ] The role rules are enforced on the server for every endpoint, with a test for a role that is not allowed.
-- [ ] The screens (SCR-8.1, SCR-8.2, SCR-8.3) match the images in `docs/UI`, and were checked on: handheld device, office computer.
+- [ ] The screens (SCR-8.1, SCR-8.2, SCR-8.3) match the images in `docs/ui`, and were checked on: handheld device, office computer.
 - [ ] Validation messages show next to the field, and what the user typed stays on the screen after an error.
 - [ ] Database changes (tables, keys, unique rules, not-null rules, checks) are in a migration script and match the Initial Data Model.
 - [ ] Every create, edit, delete, and status change writes an audit log entry (who, when, what changed).
 - [ ] A test shows that completing a receipt never changes the ordered quantity and never changes inventory.
-- [ ] These non-functional checks pass (see [NFR](../docs/NFR.md)): NFR-U2, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-A1, NFR-M1.
+- [ ] These non-functional checks pass (see [NFR](../docs/nfr/nfr.md)): NFR-U2, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-A1, NFR-M1.
 - [ ] The code is reviewed in a pull request and merged into `main` with no open critical bugs.
 - [ ] This feature file, the UI images, and the API table are updated if anything changed during the build.
 

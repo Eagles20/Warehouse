@@ -164,7 +164,7 @@
 
 ## API Requirements
 
-Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/NFR.md)).
+Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/adr/0003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/nfr/nfr.md)).
 
 | # | Method and path | Purpose | Allowed roles | Success | Errors | Supports |
 |---|---|---|---|---|---|---|
@@ -189,17 +189,17 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 ## Screen Requirements
 
-The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wireframe: it shows layout and content, not final colors.
+The screen images are in [docs/ui](../docs/ui/README.md). Each image is a wireframe: it shows layout and content, not final colors.
 
 | Screen | Name | Device | Purpose | Image | Stories |
 |---|---|---|---|---|---|
-| SCR-19.1 | Inventory Counts | Office computer | See counts and start a new one. | [image](../docs/UI/images/scr-19-1-inventory-counts.png) | US-19.1 |
-| SCR-19.2 | Start Inventory Count | Office computer | Choose the warehouse and start. | [image](../docs/UI/images/scr-19-2-start-inventory-count.png) | US-19.1, US-19.2 |
-| SCR-19.3 | Count Already Open | Office computer | Stop a second count for the same warehouse. | [image](../docs/UI/images/scr-19-3-count-already-open.png) | US-19.2 |
+| SCR-19.1 | Inventory Counts | Office computer | See counts and start a new one. | [image](../docs/ui/images/scr-19-1-inventory-counts.png) | US-19.1 |
+| SCR-19.2 | Start Inventory Count | Office computer | Choose the warehouse and start. | [image](../docs/ui/images/scr-19-2-start-inventory-count.png) | US-19.1, US-19.2 |
+| SCR-19.3 | Count Already Open | Office computer | Stop a second count for the same warehouse. | [image](../docs/ui/images/scr-19-3-count-already-open.png) | US-19.2 |
 
 ### SCR-19.1 — Inventory Counts
 
-![SCR-19.1 Inventory Counts](../docs/UI/images/scr-19-1-inventory-counts.png)
+![SCR-19.1 Inventory Counts](../docs/ui/images/scr-19-1-inventory-counts.png)
 
 **Device:** Office computer. **Purpose:** See counts and start a new one.
 
@@ -208,7 +208,7 @@ The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wirefr
 
 ### SCR-19.2 — Start Inventory Count
 
-![SCR-19.2 Start Inventory Count](../docs/UI/images/scr-19-2-start-inventory-count.png)
+![SCR-19.2 Start Inventory Count](../docs/ui/images/scr-19-2-start-inventory-count.png)
 
 **Device:** Office computer. **Purpose:** Choose the warehouse and start.
 
@@ -218,7 +218,7 @@ The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wirefr
 
 ### SCR-19.3 — Count Already Open
 
-![SCR-19.3 Count Already Open](../docs/UI/images/scr-19-3-count-already-open.png)
+![SCR-19.3 Count Already Open](../docs/ui/images/scr-19-3-count-already-open.png)
 
 **Device:** Office computer. **Purpose:** Stop a second count for the same warehouse.
 
@@ -236,12 +236,12 @@ This feature is done when all of these are true:
 - [ ] All 5 Gherkin scenarios are automated and pass in the build.
 - [ ] The 5 API endpoints match the API Requirements table, are in the OpenAPI file, and have tests for success and for every listed error.
 - [ ] The role rules are enforced on the server for every endpoint, with a test for a role that is not allowed.
-- [ ] The screens (SCR-19.1, SCR-19.2, SCR-19.3) match the images in `docs/UI`, and were checked on: office computer.
+- [ ] The screens (SCR-19.1, SCR-19.2, SCR-19.3) match the images in `docs/ui`, and were checked on: office computer.
 - [ ] Validation messages show next to the field, and what the user typed stays on the screen after an error.
 - [ ] Database changes (tables, keys, unique rules, not-null rules, checks) are in a migration script and match the Initial Data Model.
 - [ ] Every create, edit, delete, and status change writes an audit log entry (who, when, what changed).
 - [ ] A database unique rule blocks a second Open or Counted count for the same warehouse, and a concurrency test checks it.
-- [ ] These non-functional checks pass (see [NFR](../docs/NFR.md)): NFR-U1, NFR-U7, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-A1, NFR-M1.
+- [ ] These non-functional checks pass (see [NFR](../docs/nfr/nfr.md)): NFR-U1, NFR-U7, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-A1, NFR-M1.
 - [ ] The code is reviewed in a pull request and merged into `main` with no open critical bugs.
 - [ ] This feature file, the UI images, and the API table are updated if anything changed during the build.
 

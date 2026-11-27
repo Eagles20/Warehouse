@@ -5,7 +5,7 @@
 **Status:** Final
 **Created:** 2026-09-26
 **Input:** Maintain information about the retail stores we sell to and the route each one is delivered on.
-**Depends on:** [Feature 7 — Maintain Routes](feature-7-maintain-routes.md)
+**Depends on:** [Feature 1 — Maintain Company](feature-1-maintain-company.md); [Feature 7 — Maintain Routes](feature-7-maintain-routes.md)
 
 ---
 
@@ -57,7 +57,7 @@
 - **FR-004:** The system MUST allow authorized users to edit stores.
 - **FR-005:** The system MUST allow authorized users to delete stores.
 - **FR-006:** The system MUST allow authorized users to view stores.
-- **FR-007:** Required store information MUST be provided before the store can be saved (name, phone, delivery address, route).
+- **FR-007:** Required store information MUST be provided before the store can be saved (company, name, phone, delivery address line, city, state, zip, route). The route MUST belong to the same company.
 - **FR-008:** The system MUST reject duplicate store identifiers.
 - **FR-009:** The system MUST NOT delete a store that is used by an open store order or an open shipment.
 - **FR-010:** Deleting a store MUST only remove it from active records, so other features keep the original store information.
@@ -70,7 +70,7 @@
 
 ## Assumptions
 
-- **A-1:** A store is a retail customer. Each store is on exactly one delivery route (FR-011). Moving a store to another route is an edit.
+- **A-1:** A store is a retail customer of one company. Stores are not shared between companies. Each store is on exactly one delivery route (FR-011), and that route belongs to the same company. Moving a store to another route of the same company is an edit.
 - **A-2:** The clerk types the store ID, or accepts the next free number. The ID never changes.
 - **A-3:** The stop sequence is the order of the store on its route. It is optional, but when entered it must be greater than zero.
 - **A-4:** A store is "used" when a store order for it is not yet Delivered, or when a shipment for it is Shipped and not yet Delivered.
@@ -83,12 +83,12 @@
 
 | ID | Situation | Expected behavior | Related |
 |---|---|---|---|
-| EC-1 | A store is added without a route, or with a route that was deleted. | The system rejects the store. The route must exist and be active. | FR-007, FR-011 |
+| EC-1 | A store is added without a route, with a route that was deleted, or with a route of another company. | The system rejects the store. The route must exist, be active, and belong to the same company. | FR-007, FR-011 |
 | EC-2 | The route of a store is changed while a shipment for the store is on the old route. | The shipment keeps the route it was shipped on. Only new shipments use the new route. | FR-011 |
 | EC-3 | Two stores have the same stop sequence on the same route. | The system saves both and shows a warning on the route screen. Sequence is a hint for the driver, not a rule. | FR-011 |
 | EC-4 | A store has a Picked order (not shipped yet) and the clerk deletes the store. | The system rejects the delete (IN_USE), because the order is not Delivered. | FR-009 |
 | EC-5 | A store has only Delivered orders and the clerk deletes the store. | The delete is allowed. Reports (Feature 23) still show the store name for past deliveries. | FR-009, FR-010 |
-| EC-6 | The delivery address is empty or only spaces. | The system rejects the store. | FR-007 |
+| EC-6 | The delivery address line, city, state, or zip is empty or only spaces. | The system rejects the store. | FR-007 |
 | EC-7 | The phone number contains letters. | The system rejects the value and shows a message next to the field. | FR-007 |
 | EC-8 | Two clerks edit the same store at the same time. | The second save is rejected with VERSION_CONFLICT. | FR-004 |
 
@@ -115,11 +115,15 @@
 ### Store
 
 - store_id: String — Required, unique
+- company_id: Company reference — Required. Stores are not shared between companies.
 - name: String — Required
 - contact_person: String — Optional
 - phone: String — Required
-- delivery_address: String — Required
-- route_id: Route reference — Required
+- address_line: String — Required, delivery address
+- city: String — Required
+- state: String — Required, 2-letter US state
+- zip: String — Required
+- route_id: Route reference — Required, same company as the store
 - stop_sequence: Integer — Optional, greater than zero
 - is_active: Boolean — Required, false after delete
 
@@ -228,7 +232,8 @@
 | Data | Owner | This feature | Notes |
 |---|---|---|---|
 | Store | This feature (Feature 5) | Owns | Creates, edits, and sets stores inactive. |
-| Route | [Feature 7 — Maintain Routes](feature-7-maintain-routes.md) | Reads | A store must refer to an active route. |
+| Company | [Feature 1 — Maintain Company](feature-1-maintain-company.md) | Reads | A store must refer to an active company. |
+| Route | [Feature 7 — Maintain Routes](feature-7-maintain-routes.md) | Reads | A store must refer to an active route of the same company. |
 | Store Order | [Feature 12 — Enter Store Order](feature-12-enter-store-order.md) | Reads | Usage check: is an order for this store not Delivered? |
 | Shipment | [Feature 17 — Ship Store Orders](feature-17-ship-store-orders.md) | Reads | Usage check: is a shipment for this store Shipped and not Delivered? |
 | Audit Log Entry | Platform (cross-cutting) | Updates (via owner) | Writes one entry for each change and denied attempt. |
@@ -239,7 +244,7 @@
 
 ## API Requirements
 
-Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/NFR.md)).
+Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/adr/0003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/nfr/nfr.md)).
 
 | # | Method and path | Purpose | Allowed roles | Success | Errors | Supports |
 |---|---|---|---|---|---|---|
@@ -251,51 +256,52 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 **Request and response notes**
 
-- Body: `store_id` (POST only), `name`, `contact_person` (optional), `phone`, `delivery_address`, `route_id`, `stop_sequence` (optional).
+- Body: `store_id` (POST only), `company_id`, `name`, `contact_person` (optional), `phone`, `address_line`, `city`, `state`, `zip`, `route_id`, `stop_sequence` (optional).
 
 **Calls to other features (internal service calls, not public endpoints)**
 
-- Feature 7 — Maintain Routes: `isActive(routeId)` when a store is added or its route changes.
+- Feature 1 — Maintain Company: `isActive(companyId)` when a store is added.
+- Feature 7 — Maintain Routes: `isActive(routeId)` when a store is added or its route changes. The route's company must match the store's company.
 - Feature 12 and 17: `countOpenOrdersForStore`, `countOpenShipmentsForStore` before a delete.
 
 ---
 
 ## Screen Requirements
 
-The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wireframe: it shows layout and content, not final colors.
+The screen images are in [docs/ui](../docs/ui/README.md). Each image is a wireframe: it shows layout and content, not final colors.
 
 | Screen | Name | Device | Purpose | Image | Stories |
 |---|---|---|---|---|---|
-| SCR-5.1 | Store List | Office computer | Find a store and see its route. | [image](../docs/UI/images/scr-5-1-store-list.png) | US-5.4 |
-| SCR-5.2 | Add or Edit Store | Office computer | Enter or change store information and choose its route. | [image](../docs/UI/images/scr-5-2-add-or-edit-store.png) | US-5.1, US-5.2 |
-| SCR-5.3 | Store Details | Office computer | Show where and when to deliver. | [image](../docs/UI/images/scr-5-3-store-details.png) | US-5.4, US-5.3 |
+| SCR-5.1 | Store List | Office computer | Find a store and see its route. | [image](../docs/ui/images/scr-5-1-store-list.png) | US-5.4 |
+| SCR-5.2 | Add or Edit Store | Office computer | Enter or change store information and choose its route. | [image](../docs/ui/images/scr-5-2-add-or-edit-store.png) | US-5.1, US-5.2 |
+| SCR-5.3 | Store Details | Office computer | Show where and when to deliver. | [image](../docs/ui/images/scr-5-3-store-details.png) | US-5.4, US-5.3 |
 
 ### SCR-5.1 — Store List
 
-![SCR-5.1 Store List](../docs/UI/images/scr-5-1-store-list.png)
+![SCR-5.1 Store List](../docs/ui/images/scr-5-1-store-list.png)
 
 **Device:** Office computer. **Purpose:** Find a store and see its route.
 
 - Search box (Search by name, address, or ID) and filters (Route, Show deleted).
-- Table with columns: ID, Name, Delivery address, Route, Stop, Last changed, Status.
+- Table with columns: ID, Name, City, State, Route, Stop, Last changed, Status.
 - Buttons: Add store.
 
 ### SCR-5.2 — Add or Edit Store
 
-![SCR-5.2 Add or Edit Store](../docs/UI/images/scr-5-2-add-or-edit-store.png)
+![SCR-5.2 Add or Edit Store](../docs/ui/images/scr-5-2-add-or-edit-store.png)
 
 **Device:** Office computer. **Purpose:** Enter or change store information and choose its route.
 
-- Fields: Store ID (required), Name (required), Contact person, Phone (required), Delivery address (required), Route (required), Stop sequence.
+- Fields: Store ID (required), Company (required), Name (required), Contact person, Phone (required), Address line (required), City (required), State (required), Zip (required), Route (required), Stop sequence. The route list shows only routes of the selected company.
 - Buttons: Save, Cancel.
 
 ### SCR-5.3 — Store Details
 
-![SCR-5.3 Store Details](../docs/UI/images/scr-5-3-store-details.png)
+![SCR-5.3 Store Details](../docs/ui/images/scr-5-3-store-details.png)
 
 **Device:** Office computer. **Purpose:** Show where and when to deliver.
 
-- Details shown: Store ID, Name, Delivery address, Phone, Route, Stop, Last changed.
+- Details shown: Store ID, Company, Name, Address line, City, State, Zip, Phone, Route, Stop, Last changed.
 - Message (info): This store has 1 open order. It cannot be deleted.
 - Buttons: Back to list, Edit, Delete.
 
@@ -310,12 +316,12 @@ This feature is done when all of these are true:
 - [ ] All 14 Gherkin scenarios are automated and pass in the build.
 - [ ] The 5 API endpoints match the API Requirements table, are in the OpenAPI file, and have tests for success and for every listed error.
 - [ ] The role rules are enforced on the server for every endpoint, with a test for a role that is not allowed.
-- [ ] The screens (SCR-5.1, SCR-5.2, SCR-5.3) match the images in `docs/UI`, and were checked on: office computer.
+- [ ] The screens (SCR-5.1, SCR-5.2, SCR-5.3) match the images in `docs/ui`, and were checked on: office computer.
 - [ ] Validation messages show next to the field, and what the user typed stays on the screen after an error.
 - [ ] Database changes (tables, keys, unique rules, not-null rules, checks) are in a migration script and match the Initial Data Model.
 - [ ] Every create, edit, delete, and status change writes an audit log entry (who, when, what changed).
 - [ ] A test shows that a store always has exactly one active route when saved.
-- [ ] These non-functional checks pass (see [NFR](../docs/NFR.md)): NFR-U1, NFR-U6, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D3, NFR-D4, NFR-A1, NFR-M1.
+- [ ] These non-functional checks pass (see [NFR](../docs/nfr/nfr.md)): NFR-U1, NFR-U6, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D3, NFR-D4, NFR-A1, NFR-M1.
 - [ ] The code is reviewed in a pull request and merged into `main` with no open critical bugs.
 - [ ] This feature file, the UI images, and the API table are updated if anything changed during the build.
 

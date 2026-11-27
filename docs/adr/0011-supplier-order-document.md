@@ -12,6 +12,8 @@ Suppliers receive orders by fax or phone (see the supplier contact fields in Fea
 
 When the clerk sends an order (Feature 11), the system sets the status to Sent and creates a **PDF** of the order. The clerk prints it, faxes it, or e-mails it with his or her own tools. The system does not send the fax or e-mail. The PDF can be downloaded again later.
 
+The PDF shows our account number at the supplier (stored on the supplier) and, on each line, the supplier's item number and the unit cost from the supplier-item link.
+
 ## Alternatives considered
 
 - **Built-in e-mail or fax service:** costs money and needs a provider contract.

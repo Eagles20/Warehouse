@@ -57,7 +57,7 @@
 - **FR-004:** The system MUST allow authorized users to edit companies.
 - **FR-005:** The system MUST allow authorized users to delete companies.
 - **FR-006:** The system MUST allow authorized users to view companies.
-- **FR-007:** Required company information MUST be provided before the company can be saved (name, address, phone).
+- **FR-007:** Required company information MUST be provided before the company can be saved (name, address line, city, state, zip, phone).
 - **FR-008:** The system MUST reject duplicate company identifiers.
 - **FR-009:** The system MUST NOT delete a company that is used by a warehouse.
 - **FR-010:** Deleting a company MUST only remove it from active records, so other features keep the original company information.
@@ -72,7 +72,7 @@
 - **A-1:** The warehouse belongs to one company, so the list is short (usually 1 to 5 companies). The screens still work for more.
 - **A-2:** The inventory clerk types the company ID (for example C-001), or accepts the next free number the screen suggests. The ID never changes after the company is saved.
 - **A-3:** A company is "used" when at least one active warehouse refers to it. A company that only has deleted warehouses can be deleted.
-- **A-4:** Field limits: name 100 characters, address 200, phone 20, email 254. Phone may contain digits, spaces, +, -, and brackets, with at least 7 digits.
+- **A-4:** Field limits: name 100 characters, address line 100, city 50, state 2 letters, zip 10, phone 20, email 254. Phone may contain digits, spaces, +, -, and brackets, with at least 7 digits. State is a US state code (for example MN). Zip is 5 digits, or 5 digits, a hyphen, and 4 digits.
 - **A-5:** Inventory clerks and managers add, edit, delete, and view companies. Other roles cannot open this feature (assumption: least privilege).
 - **A-6:** "Delete" means the company is set to inactive (`is_active = false`). Nothing is removed from the database (ADR-007). Restoring a deleted company is not offered.
 - **A-7:** Everyone signs in before using the system, and the role comes from the employee record (ADR-006).
@@ -83,7 +83,7 @@
 
 | ID | Situation | Expected behavior | Related |
 |---|---|---|---|
-| EC-1 | The name, address, or phone contains only spaces. | The system trims spaces and treats the field as missing. The company is not saved. | FR-007 |
+| EC-1 | The name, address line, city, state, zip, or phone contains only spaces. | The system trims spaces and treats the field as missing. The company is not saved. | FR-007 |
 | EC-2 | A new ID differs from an existing ID only by letter case ("c-001" and "C-001"). | The system treats them as the same ID and rejects the duplicate. | FR-002, FR-008 |
 | EC-3 | The phone number contains letters, or the email address has no "@". | The system rejects the value and shows a message next to the field. | FR-007 |
 | EC-4 | A field is longer than its limit (for example, a name with 150 characters). | The system rejects the value and shows the limit in the message. | FR-007 |
@@ -117,7 +117,10 @@
 
 - company_id: String — Required, unique
 - name: String — Required
-- address: String — Required
+- address_line: String — Required
+- city: String — Required
+- state: String — Required, 2-letter US state
+- zip: String — Required
 - phone: String — Required
 - email: String — Optional
 - is_active: Boolean — Required, false after delete
@@ -223,7 +226,7 @@
 
 ## API Requirements
 
-Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/NFR.md)).
+Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/adr/0003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/nfr/nfr.md)).
 
 | # | Method and path | Purpose | Allowed roles | Success | Errors | Supports |
 |---|---|---|---|---|---|---|
@@ -235,7 +238,7 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 **Request and response notes**
 
-- Body for POST and PUT: `company_id` (POST only), `name`, `address`, `phone`, `email` (optional). Response adds `is_active`, `version`, `updated_at`, `updated_by`.
+- Body for POST and PUT: `company_id` (POST only), `name`, `address_line`, `city`, `state`, `zip`, `phone`, `email` (optional). Response adds `is_active`, `version`, `updated_at`, `updated_by`.
 - Duplicate IDs are compared without letter case. The error body names the field (`company_id`).
 - The confirmation dialog before saving (FR-013) is a screen rule. The API does not need a confirm flag.
 
@@ -247,31 +250,31 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 ## Screen Requirements
 
-The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wireframe: it shows layout and content, not final colors.
+The screen images are in [docs/ui](../docs/ui/README.md). Each image is a wireframe: it shows layout and content, not final colors.
 
 | Screen | Name | Device | Purpose | Image | Stories |
 |---|---|---|---|---|---|
-| SCR-1.1 | Company List | Office computer | Find a company and start an add, edit, or delete. | [image](../docs/UI/images/scr-1-1-company-list.png) | US-1.4 |
-| SCR-1.2 | Add or Edit Company | Office computer | Enter or change company information, then confirm the save. | [image](../docs/UI/images/scr-1-2-add-or-edit-company.png) | US-1.1, US-1.2 |
-| SCR-1.3 | Company Details | Office computer | Show the current company information. | [image](../docs/UI/images/scr-1-3-company-details.png) | US-1.4, US-1.3 |
+| SCR-1.1 | Company List | Office computer | Find a company and start an add, edit, or delete. | [image](../docs/ui/images/scr-1-1-company-list.png) | US-1.4 |
+| SCR-1.2 | Add or Edit Company | Office computer | Enter or change company information, then confirm the save. | [image](../docs/ui/images/scr-1-2-add-or-edit-company.png) | US-1.1, US-1.2 |
+| SCR-1.3 | Company Details | Office computer | Show the current company information. | [image](../docs/ui/images/scr-1-3-company-details.png) | US-1.4, US-1.3 |
 
 ### SCR-1.1 — Company List
 
-![SCR-1.1 Company List](../docs/UI/images/scr-1-1-company-list.png)
+![SCR-1.1 Company List](../docs/ui/images/scr-1-1-company-list.png)
 
 **Device:** Office computer. **Purpose:** Find a company and start an add, edit, or delete.
 
 - Search box (Search by name or ID) and filters (Show deleted companies).
-- Table with columns: ID, Name, Address, Phone, Status.
+- Table with columns: ID, Name, City, State, Phone, Status. The full address (address line, city, state, zip) is on the details screen.
 - Buttons: Add company.
 
 ### SCR-1.2 — Add or Edit Company
 
-![SCR-1.2 Add or Edit Company](../docs/UI/images/scr-1-2-add-or-edit-company.png)
+![SCR-1.2 Add or Edit Company](../docs/ui/images/scr-1-2-add-or-edit-company.png)
 
 **Device:** Office computer. **Purpose:** Enter or change company information, then confirm the save.
 
-- Fields: Company ID (required), Name (required), Address (required), Phone (required), Email.
+- Fields: Company ID (required), Name (required), Address line (required), City (required), State (required), Zip (required), Phone (required), Email.
 - Message (warn): Confirm: Save changes to company C-004?  [Yes, save]  [No, go back]
 - Buttons: Save, Cancel.
 - The confirmation message appears every time the clerk clicks Save (FR-013).
@@ -279,11 +282,11 @@ The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wirefr
 
 ### SCR-1.3 — Company Details
 
-![SCR-1.3 Company Details](../docs/UI/images/scr-1-3-company-details.png)
+![SCR-1.3 Company Details](../docs/ui/images/scr-1-3-company-details.png)
 
 **Device:** Office computer. **Purpose:** Show the current company information.
 
-- Details shown: Company ID, Name, Address, Phone, Email, Status, Last changed.
+- Details shown: Company ID, Name, Address line, City, State, Zip, Phone, Email, Status, Last changed.
 - Message (info): Used by 2 active warehouses. This company cannot be deleted.
 - Buttons: Back to list, Edit, Delete.
 - Delete is disabled and the message explains why when an active warehouse uses the company.
@@ -299,12 +302,12 @@ This feature is done when all of these are true:
 - [ ] All 12 Gherkin scenarios are automated and pass in the build.
 - [ ] The 5 API endpoints match the API Requirements table, are in the OpenAPI file, and have tests for success and for every listed error.
 - [ ] The role rules are enforced on the server for every endpoint, with a test for a role that is not allowed.
-- [ ] The screens (SCR-1.1, SCR-1.2, SCR-1.3) match the images in `docs/UI`, and were checked on: office computer.
+- [ ] The screens (SCR-1.1, SCR-1.2, SCR-1.3) match the images in `docs/ui`, and were checked on: office computer.
 - [ ] Validation messages show next to the field, and what the user typed stays on the screen after an error.
 - [ ] Database changes (tables, keys, unique rules, not-null rules, checks) are in a migration script and match the Initial Data Model.
 - [ ] Every create, edit, delete, and status change writes an audit log entry (who, when, what changed).
 - [ ] A test shows that a company used by an active warehouse cannot be deleted, even when two requests arrive at the same time.
-- [ ] These non-functional checks pass (see [NFR](../docs/NFR.md)): NFR-U1, NFR-U5, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D3, NFR-D4, NFR-A1, NFR-M1.
+- [ ] These non-functional checks pass (see [NFR](../docs/nfr/nfr.md)): NFR-U1, NFR-U5, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D3, NFR-D4, NFR-A1, NFR-M1.
 - [ ] The code is reviewed in a pull request and merged into `main` with no open critical bugs.
 - [ ] This feature file, the UI images, and the API table are updated if anything changed during the build.
 

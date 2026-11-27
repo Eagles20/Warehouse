@@ -5,7 +5,7 @@
 **Status:** Draft
 **Created:** 2026-09-27
 **Input:** Maintain delivery routes and the driver of each route.
-**Depends on:** [Feature 6 — Maintain Employees](feature-6-maintain-employess.md)
+**Depends on:** [Feature 1 — Maintain Company](feature-1-maintain-company.md); [Feature 6 — Maintain Employees](feature-6-maintain-employess.md)
 
 ---
 
@@ -57,7 +57,7 @@
 - **FR-004:** The system MUST allow authorized users to edit routes.
 - **FR-005:** The system MUST allow authorized users to delete routes.
 - **FR-006:** The system MUST allow authorized users to view routes.
-- **FR-007:** Required route information MUST be provided before the route can be saved (name, driver, delivery day).
+- **FR-007:** Required route information MUST be provided before the route can be saved (company, name, driver, delivery day).
 - **FR-008:** The system MUST reject duplicate route identifiers.
 - **FR-009:** The system MUST NOT delete a route that is used by a store or an open shipment.
 - **FR-010:** Deleting a route MUST only remove it from active records, so other features keep the original route information.
@@ -70,7 +70,7 @@
 
 ## Assumptions
 
-- **A-1:** A route is driven by one driver on one delivery day. Several stores are on a route (Feature 5).
+- **A-1:** A route belongs to one company and is not shared. It is driven by one driver on one delivery day. Several stores of that same company are on a route (Feature 5).
 - **A-2:** The shipping clerk types the route ID, or accepts the next free number. The ID never changes.
 - **A-3:** Delivery day is one weekday (Monday to Sunday). A route that runs on two days is two routes.
 - **A-4:** A route is "used" when an active store is on it, or when a shipment on it is Shipped and not yet Delivered.
@@ -116,6 +116,7 @@
 ### Route
 
 - route_id: String — Required, unique
+- company_id: Company reference — Required. Routes are not shared between companies.
 - name: String — Required
 - driver_id: Employee reference — Required, employee role is Driver
 - vehicle: String — Optional
@@ -261,6 +262,7 @@
 | Data | Owner | This feature | Notes |
 |---|---|---|---|
 | Route | This feature (Feature 7) | Owns | Creates, edits, and sets routes inactive. |
+| Company | [Feature 1 — Maintain Company](feature-1-maintain-company.md) | Reads | A route must refer to an active company. Routes are not shared between companies. |
 | Employee | [Feature 6 — Maintain Employees](feature-6-maintain-employess.md) | Reads | The driver must be an active employee with the Driver role. |
 | Store | [Feature 5 — Maintain Stores](feature-5-maintain-stores.md) | Reads | Usage check, and the list of stops (stores on the route in stop order). |
 | Shipment | [Feature 17 — Ship Store Orders](feature-17-ship-store-orders.md) | Reads | Usage check: is a shipment on this route Shipped and not Delivered? |
@@ -272,7 +274,7 @@
 
 ## API Requirements
 
-Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/NFR.md)).
+Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/adr/0003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/nfr/nfr.md)).
 
 | # | Method and path | Purpose | Allowed roles | Success | Errors | Supports |
 |---|---|---|---|---|---|---|
@@ -285,10 +287,11 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 **Request and response notes**
 
-- Body: `route_id` (POST only), `name`, `driver_id`, `vehicle` (optional), `delivery_day`.
+- Body: `route_id` (POST only), `company_id`, `name`, `driver_id`, `vehicle` (optional), `delivery_day`.
 
 **Calls to other features (internal service calls, not public endpoints)**
 
+- Feature 1 — Maintain Company: `isActive(companyId)` when a route is added.
 - Feature 6 — Maintain Employees: `isActiveWithRole(driverId, Driver)` and `/employees/lookup?role=Driver` for the driver list.
 - Feature 5 and 17: `countActiveStoresOnRoute`, `countOpenShipmentsOnRoute` before a delete.
 
@@ -296,17 +299,17 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 ## Screen Requirements
 
-The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wireframe: it shows layout and content, not final colors.
+The screen images are in [docs/ui](../docs/ui/README.md). Each image is a wireframe: it shows layout and content, not final colors.
 
 | Screen | Name | Device | Purpose | Image | Stories |
 |---|---|---|---|---|---|
-| SCR-7.1 | Route List | Tablet | Find a route and its driver on a tablet. | [image](../docs/UI/images/scr-7-1-route-list.png) | US-7.4 |
-| SCR-7.2 | Add or Edit Route | Tablet | Enter or change a route and choose its driver. | [image](../docs/UI/images/scr-7-2-add-or-edit-route.png) | US-7.1, US-7.2 |
-| SCR-7.3 | Route Details and Stops | Tablet | Show the route, its driver, and the stops in order. | [image](../docs/UI/images/scr-7-3-route-details-and-stops.png) | US-7.4 |
+| SCR-7.1 | Route List | Tablet | Find a route and its driver on a tablet. | [image](../docs/ui/images/scr-7-1-route-list.png) | US-7.4 |
+| SCR-7.2 | Add or Edit Route | Tablet | Enter or change a route and choose its driver. | [image](../docs/ui/images/scr-7-2-add-or-edit-route.png) | US-7.1, US-7.2 |
+| SCR-7.3 | Route Details and Stops | Tablet | Show the route, its driver, and the stops in order. | [image](../docs/ui/images/scr-7-3-route-details-and-stops.png) | US-7.4 |
 
 ### SCR-7.1 — Route List
 
-![SCR-7.1 Route List](../docs/UI/images/scr-7-1-route-list.png)
+![SCR-7.1 Route List](../docs/ui/images/scr-7-1-route-list.png)
 
 **Device:** Tablet. **Purpose:** Find a route and its driver on a tablet.
 
@@ -316,21 +319,21 @@ The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wirefr
 
 ### SCR-7.2 — Add or Edit Route
 
-![SCR-7.2 Add or Edit Route](../docs/UI/images/scr-7-2-add-or-edit-route.png)
+![SCR-7.2 Add or Edit Route](../docs/ui/images/scr-7-2-add-or-edit-route.png)
 
 **Device:** Tablet. **Purpose:** Enter or change a route and choose its driver.
 
-- Fields: Route ID (required), Name (required), Driver (required), Vehicle, Delivery day (required).
+- Fields: Route ID (required), Company (required), Name (required), Driver (required), Vehicle, Delivery day (required).
 - Message (info): Only active employees with the Driver role are in the driver list.
 - Buttons: Save, Cancel.
 
 ### SCR-7.3 — Route Details and Stops
 
-![SCR-7.3 Route Details and Stops](../docs/UI/images/scr-7-3-route-details-and-stops.png)
+![SCR-7.3 Route Details and Stops](../docs/ui/images/scr-7-3-route-details-and-stops.png)
 
 **Device:** Tablet. **Purpose:** Show the route, its driver, and the stops in order.
 
-- Details shown: Route, Driver, Vehicle, Day, Last changed.
+- Details shown: Route, Company, Driver, Vehicle, Day, Last changed.
 - Table with columns: Stop, Store, Address, Phone.
 - Buttons: Back to list, Edit, Delete.
 - A driver sees this screen for the driver's own route only.
@@ -346,12 +349,12 @@ This feature is done when all of these are true:
 - [ ] All 14 Gherkin scenarios are automated and pass in the build.
 - [ ] The 6 API endpoints match the API Requirements table, are in the OpenAPI file, and have tests for success and for every listed error.
 - [ ] The role rules are enforced on the server for every endpoint, with a test for a role that is not allowed.
-- [ ] The screens (SCR-7.1, SCR-7.2, SCR-7.3) match the images in `docs/UI`, and were checked on: tablet.
+- [ ] The screens (SCR-7.1, SCR-7.2, SCR-7.3) match the images in `docs/ui`, and were checked on: tablet.
 - [ ] Validation messages show next to the field, and what the user typed stays on the screen after an error.
 - [ ] Database changes (tables, keys, unique rules, not-null rules, checks) are in a migration script and match the Initial Data Model.
 - [ ] Every create, edit, delete, and status change writes an audit log entry (who, when, what changed).
 - [ ] Screens were checked on a tablet-size screen (820 px wide) and a handheld-size screen (390 px wide).
-- [ ] These non-functional checks pass (see [NFR](../docs/NFR.md)): NFR-U2, NFR-U6, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D3, NFR-D4, NFR-A1, NFR-M1.
+- [ ] These non-functional checks pass (see [NFR](../docs/nfr/nfr.md)): NFR-U2, NFR-U6, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D3, NFR-D4, NFR-A1, NFR-M1.
 - [ ] The code is reviewed in a pull request and merged into `main` with no open critical bugs.
 - [ ] This feature file, the UI images, and the API table are updated if anything changed during the build.
 

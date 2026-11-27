@@ -216,7 +216,7 @@
 
 ## API Requirements
 
-Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/NFR.md)).
+Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/adr/0003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/nfr/nfr.md)).
 
 | # | Method and path | Purpose | Allowed roles | Success | Errors | Supports |
 |---|---|---|---|---|---|---|
@@ -242,17 +242,17 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 ## Screen Requirements
 
-The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wireframe: it shows layout and content, not final colors.
+The screen images are in [docs/ui](../docs/ui/README.md). Each image is a wireframe: it shows layout and content, not final colors.
 
 | Screen | Name | Device | Purpose | Image | Stories |
 |---|---|---|---|---|---|
-| SCR-12.1 | Store Order List | Office computer | See store orders and their status. | [image](../docs/UI/images/scr-12-1-store-order-list.png) | US-12.1 |
-| SCR-12.2 | Enter Store Order | Office computer | Enter the lines from the order sheet and see availability. | [image](../docs/UI/images/scr-12-2-enter-store-order.png) | US-12.1, US-12.2, US-12.3, US-12.4 |
-| SCR-12.3 | Store Order Details | Office computer | Show one order with ordered, picked, and delivered quantities. | [image](../docs/UI/images/scr-12-3-store-order-details.png) | US-12.1 |
+| SCR-12.1 | Store Order List | Office computer | See store orders and their status. | [image](../docs/ui/images/scr-12-1-store-order-list.png) | US-12.1 |
+| SCR-12.2 | Enter Store Order | Office computer | Enter the lines from the order sheet and see availability. | [image](../docs/ui/images/scr-12-2-enter-store-order.png) | US-12.1, US-12.2, US-12.3, US-12.4 |
+| SCR-12.3 | Store Order Details | Office computer | Show one order with ordered, picked, and delivered quantities. | [image](../docs/ui/images/scr-12-3-store-order-details.png) | US-12.1 |
 
 ### SCR-12.1 — Store Order List
 
-![SCR-12.1 Store Order List](../docs/UI/images/scr-12-1-store-order-list.png)
+![SCR-12.1 Store Order List](../docs/ui/images/scr-12-1-store-order-list.png)
 
 **Device:** Office computer. **Purpose:** See store orders and their status.
 
@@ -262,7 +262,7 @@ The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wirefr
 
 ### SCR-12.2 — Enter Store Order
 
-![SCR-12.2 Enter Store Order](../docs/UI/images/scr-12-2-enter-store-order.png)
+![SCR-12.2 Enter Store Order](../docs/ui/images/scr-12-2-enter-store-order.png)
 
 **Device:** Office computer. **Purpose:** Enter the lines from the order sheet and see availability.
 
@@ -273,7 +273,7 @@ The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wirefr
 
 ### SCR-12.3 — Store Order Details
 
-![SCR-12.3 Store Order Details](../docs/UI/images/scr-12-3-store-order-details.png)
+![SCR-12.3 Store Order Details](../docs/ui/images/scr-12-3-store-order-details.png)
 
 **Device:** Office computer. **Purpose:** Show one order with ordered, picked, and delivered quantities.
 
@@ -292,12 +292,12 @@ This feature is done when all of these are true:
 - [ ] All 9 Gherkin scenarios are automated and pass in the build.
 - [ ] The 6 API endpoints match the API Requirements table, are in the OpenAPI file, and have tests for success and for every listed error.
 - [ ] The role rules are enforced on the server for every endpoint, with a test for a role that is not allowed.
-- [ ] The screens (SCR-12.1, SCR-12.2, SCR-12.3) match the images in `docs/UI`, and were checked on: office computer.
+- [ ] The screens (SCR-12.1, SCR-12.2, SCR-12.3) match the images in `docs/ui`, and were checked on: office computer.
 - [ ] Validation messages show next to the field, and what the user typed stays on the screen after an error.
 - [ ] Database changes (tables, keys, unique rules, not-null rules, checks) are in a migration script and match the Initial Data Model.
 - [ ] Every create, edit, delete, and status change writes an audit log entry (who, when, what changed).
 - [ ] A test shows that an availability warning never blocks saving.
-- [ ] These non-functional checks pass (see [NFR](../docs/NFR.md)): NFR-U1, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D2, NFR-D3, NFR-A1, NFR-M1.
+- [ ] These non-functional checks pass (see [NFR](../docs/nfr/nfr.md)): NFR-U1, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D2, NFR-D3, NFR-A1, NFR-M1.
 - [ ] The code is reviewed in a pull request and merged into `main` with no open critical bugs.
 - [ ] This feature file, the UI images, and the API table are updated if anything changed during the build.
 

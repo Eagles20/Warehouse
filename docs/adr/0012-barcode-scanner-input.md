@@ -2,11 +2,11 @@
 
 **Status:** Proposed
 **Date:** 2026-11-04
-**Related features:** Features 10, 13, 15, 16, 20
+**Related features:** Features 8, 10, 13, 15, 16, 17, 18, 20
 
 ## Context
 
-Workers scan UPC codes and slot codes (Features 10, 13, 15, 16, 20). The screens run in a browser on handheld devices and tablets.
+Workers scan UPC codes, slot codes, and order labels (Features 8, 10, 13, 15, 16, 17, 18, 20). The screens run in a browser on handheld devices, tablets, and the driver's phone. Receiving, put away, picking, shipping, and delivery each open with a scan box focused, and each quantity the worker records is a text field, not a fixed number.
 
 ## Decision
 

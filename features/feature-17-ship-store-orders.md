@@ -59,7 +59,7 @@
 - **A-1:** Only store orders with status Picked can be shipped (FR-001, FR-002).
 - **A-2:** The shipping clerk confirms that the order is wrapped and labeled with a check box. Ship is disabled until it is checked (FR-003).
 - **A-3:** Shipping creates a shipment that uses the route and driver of the store (FR-004). The system fills them in. The clerk cannot choose another route.
-- **A-4:** Quantity shipped is the quantity picked. Shipping reduces inventory by that quantity and releases the reservation (FR-005). Short picks ship with the smaller quantity.
+- **A-4:** Each line shows quantity picked as read only and quantity shipping as a number field. The field starts as the quantity picked. The clerk can type a smaller number (for example, damage found at the dock) and cannot type a higher number. Shipping reduces inventory by the quantity shipping and releases the reservation (FR-005). Short picks ship with the smaller quantity.
 - **A-5:** Shipping sets the order to Shipped and saves the ship date and time (FR-006).
 - **A-6:** The clerk can ship several orders in one step. Each order becomes its own shipment.
 - **A-7:** A shipment is not changed after shipping. If the driver cannot deliver, Feature 18 records an exception.
@@ -185,7 +185,7 @@
 
 ## API Requirements
 
-Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/NFR.md)).
+Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/adr/0003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/nfr/nfr.md)).
 
 | # | Method and path | Purpose | Allowed roles | Success | Errors | Supports |
 |---|---|---|---|---|---|---|
@@ -197,7 +197,8 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 **Request and response notes**
 
-- POST body: `store_order_id`, `wrapped_and_labeled`. The server sets `route_id`, `driver_id`, `shipped_by`, and `shipped_at`.
+- POST body: `store_order_id`, `wrapped_and_labeled`, and optional `lines` = list of {`item_id`, `quantity_shipping`}. When `lines` is omitted, quantity shipping is the quantity picked. A quantity above picked is rejected.
+- The server sets `route_id`, `driver_id`, `shipped_by`, and `shipped_at`.
 
 **Calls to other features (internal service calls, not public endpoints)**
 
@@ -209,38 +210,39 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 ## Screen Requirements
 
-The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wireframe: it shows layout and content, not final colors.
+The screen images are in [docs/ui](../docs/ui/README.md). Each image is a wireframe: it shows layout and content, not final colors.
 
 | Screen | Name | Device | Purpose | Image | Stories |
 |---|---|---|---|---|---|
-| SCR-17.1 | Orders Ready to Ship | Tablet | Choose picked orders to ship. | [image](../docs/UI/images/scr-17-1-orders-ready-to-ship.png) | US-17.1 |
-| SCR-17.2 | Confirm Shipment | Tablet | Confirm the order is wrapped and labeled, then ship. | [image](../docs/UI/images/scr-17-2-confirm-shipment.png) | US-17.2, US-17.3 |
-| SCR-17.3 | Shipments | Tablet | Show shipped orders and their status. | [image](../docs/UI/images/scr-17-3-shipments.png) | US-17.3 |
+| SCR-17.1 | Orders Ready to Ship | Tablet | Choose picked orders to ship. | [image](../docs/ui/images/scr-17-1-orders-ready-to-ship.png) | US-17.1 |
+| SCR-17.2 | Confirm Shipment | Tablet | Confirm the order is wrapped and labeled, then ship. | [image](../docs/ui/images/scr-17-2-confirm-shipment.png) | US-17.2, US-17.3 |
+| SCR-17.3 | Shipments | Tablet | Show shipped orders and their status. | [image](../docs/ui/images/scr-17-3-shipments.png) | US-17.3 |
 
 ### SCR-17.1 — Orders Ready to Ship
 
-![SCR-17.1 Orders Ready to Ship](../docs/UI/images/scr-17-1-orders-ready-to-ship.png)
+![SCR-17.1 Orders Ready to Ship](../docs/ui/images/scr-17-1-orders-ready-to-ship.png)
 
 **Device:** Tablet. **Purpose:** Choose picked orders to ship.
 
-- Search box (Search by store or order) and filters (Route).
+- Scan box (focused): scan the order or pick label, or type the store or order number (ADR-012). Filters: Route.
 - Table with columns: Order, Store, Route, Driver, Lines.
 - Buttons: Ship selected.
 
 ### SCR-17.2 — Confirm Shipment
 
-![SCR-17.2 Confirm Shipment](../docs/UI/images/scr-17-2-confirm-shipment.png)
+![SCR-17.2 Confirm Shipment](../docs/ui/images/scr-17-2-confirm-shipment.png)
 
 **Device:** Tablet. **Purpose:** Confirm the order is wrapped and labeled, then ship.
 
+- Scan box (focused): scan the order or the pick label to open this order.
 - Details shown: Order, Store, Route, Driver.
-- Table with columns: Item, Ordered, Picked / Shipping.
-- Fields: The order is wrapped and labeled (required).
+- Table with columns: Item, Ordered (read only), Picked (read only), Shipping (number field, starts as Picked, cannot be higher than Picked).
+- Fields: The order is wrapped and labeled (required checkbox).
 - Buttons: Ship order, Cancel.
 
 ### SCR-17.3 — Shipments
 
-![SCR-17.3 Shipments](../docs/UI/images/scr-17-3-shipments.png)
+![SCR-17.3 Shipments](../docs/ui/images/scr-17-3-shipments.png)
 
 **Device:** Tablet. **Purpose:** Show shipped orders and their status.
 
@@ -257,12 +259,12 @@ This feature is done when all of these are true:
 - [ ] All 7 Gherkin scenarios are automated and pass in the build.
 - [ ] The 5 API endpoints match the API Requirements table, are in the OpenAPI file, and have tests for success and for every listed error.
 - [ ] The role rules are enforced on the server for every endpoint, with a test for a role that is not allowed.
-- [ ] The screens (SCR-17.1, SCR-17.2, SCR-17.3) match the images in `docs/UI`, and were checked on: tablet.
+- [ ] The screens (SCR-17.1, SCR-17.2, SCR-17.3) match the images in `docs/ui`, and were checked on: tablet.
 - [ ] Validation messages show next to the field, and what the user typed stays on the screen after an error.
 - [ ] Database changes (tables, keys, unique rules, not-null rules, checks) are in a migration script and match the Initial Data Model.
 - [ ] Every create, edit, delete, and status change writes an audit log entry (who, when, what changed).
 - [ ] A failure test shows that when inventory cannot be reduced, the order stays Picked and no shipment is saved.
-- [ ] These non-functional checks pass (see [NFR](../docs/NFR.md)): NFR-U2, NFR-U4, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D2, NFR-A1, NFR-A2, NFR-M1.
+- [ ] These non-functional checks pass (see [NFR](../docs/nfr/nfr.md)): NFR-U2, NFR-U4, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D2, NFR-A1, NFR-A2, NFR-M1.
 - [ ] The code is reviewed in a pull request and merged into `main` with no open critical bugs.
 - [ ] This feature file, the UI images, and the API table are updated if anything changed during the build.
 

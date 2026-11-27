@@ -292,7 +292,7 @@
 
 ## API Requirements
 
-Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/NFR.md)).
+Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/adr/0003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/nfr/nfr.md)).
 
 | # | Method and path | Purpose | Allowed roles | Success | Errors | Supports |
 |---|---|---|---|---|---|---|
@@ -317,17 +317,17 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 ## Screen Requirements
 
-The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wireframe: it shows layout and content, not final colors.
+The screen images are in [docs/ui](../docs/ui/README.md). Each image is a wireframe: it shows layout and content, not final colors.
 
 | Screen | Name | Device | Purpose | Image | Stories |
 |---|---|---|---|---|---|
-| SCR-9.1 | Inventory List | Office computer | Find inventory by item, slot, or warehouse. | [image](../docs/UI/images/scr-9-1-inventory-list.png) | US-9.4 |
-| SCR-9.2 | Add or Edit Inventory Record | Office computer | Add a record or correct a quantity, with a reason. | [image](../docs/UI/images/scr-9-2-add-or-edit-inventory-record.png) | US-9.1, US-9.2 |
-| SCR-9.3 | Inventory Record Details | Office computer | Show one record and its change history. | [image](../docs/UI/images/scr-9-3-inventory-record-details.png) | US-9.4 |
+| SCR-9.1 | Inventory List | Office computer | Find inventory by item, slot, or warehouse. | [image](../docs/ui/images/scr-9-1-inventory-list.png) | US-9.4 |
+| SCR-9.2 | Add or Edit Inventory Record | Office computer | Add a record or correct a quantity, with a reason. | [image](../docs/ui/images/scr-9-2-add-or-edit-inventory-record.png) | US-9.1, US-9.2 |
+| SCR-9.3 | Inventory Record Details | Office computer | Show one record and its change history. | [image](../docs/ui/images/scr-9-3-inventory-record-details.png) | US-9.4 |
 
 ### SCR-9.1 — Inventory List
 
-![SCR-9.1 Inventory List](../docs/UI/images/scr-9-1-inventory-list.png)
+![SCR-9.1 Inventory List](../docs/ui/images/scr-9-1-inventory-list.png)
 
 **Device:** Office computer. **Purpose:** Find inventory by item, slot, or warehouse.
 
@@ -337,7 +337,7 @@ The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wirefr
 
 ### SCR-9.2 — Add or Edit Inventory Record
 
-![SCR-9.2 Add or Edit Inventory Record](../docs/UI/images/scr-9-2-add-or-edit-inventory-record.png)
+![SCR-9.2 Add or Edit Inventory Record](../docs/ui/images/scr-9-2-add-or-edit-inventory-record.png)
 
 **Device:** Office computer. **Purpose:** Add a record or correct a quantity, with a reason.
 
@@ -348,7 +348,7 @@ The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wirefr
 
 ### SCR-9.3 — Inventory Record Details
 
-![SCR-9.3 Inventory Record Details](../docs/UI/images/scr-9-3-inventory-record-details.png)
+![SCR-9.3 Inventory Record Details](../docs/ui/images/scr-9-3-inventory-record-details.png)
 
 **Device:** Office computer. **Purpose:** Show one record and its change history.
 
@@ -367,13 +367,13 @@ This feature is done when all of these are true:
 - [ ] All 15 Gherkin scenarios are automated and pass in the build.
 - [ ] The 6 API endpoints match the API Requirements table, are in the OpenAPI file, and have tests for success and for every listed error.
 - [ ] The role rules are enforced on the server for every endpoint, with a test for a role that is not allowed.
-- [ ] The screens (SCR-9.1, SCR-9.2, SCR-9.3) match the images in `docs/UI`, and were checked on: office computer.
+- [ ] The screens (SCR-9.1, SCR-9.2, SCR-9.3) match the images in `docs/ui`, and were checked on: office computer.
 - [ ] Validation messages show next to the field, and what the user typed stays on the screen after an error.
 - [ ] Database changes (tables, keys, unique rules, not-null rules, checks) are in a migration script and match the Initial Data Model.
 - [ ] Every create, edit, delete, and status change writes an audit log entry (who, when, what changed).
 - [ ] A concurrency test shows that two users changing the same record never lose a change.
 - [ ] A database check rule blocks a negative quantity even when the application code is bypassed.
-- [ ] These non-functional checks pass (see [NFR](../docs/NFR.md)): NFR-U1, NFR-U4, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D2, NFR-D3, NFR-A1, NFR-A2, NFR-M1.
+- [ ] These non-functional checks pass (see [NFR](../docs/nfr/nfr.md)): NFR-U1, NFR-U4, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D2, NFR-D3, NFR-A1, NFR-A2, NFR-M1.
 - [ ] The code is reviewed in a pull request and merged into `main` with no open critical bugs.
 - [ ] This feature file, the UI images, and the API table are updated if anything changed during the build.
 

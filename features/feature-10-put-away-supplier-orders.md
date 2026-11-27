@@ -186,7 +186,7 @@
 
 ## API Requirements
 
-Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/NFR.md)).
+Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/adr/0003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/nfr/nfr.md)).
 
 | # | Method and path | Purpose | Allowed roles | Success | Errors | Supports |
 |---|---|---|---|---|---|---|
@@ -211,37 +211,37 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 ## Screen Requirements
 
-The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wireframe: it shows layout and content, not final colors.
+The screen images are in [docs/ui](../docs/ui/README.md). Each image is a wireframe: it shows layout and content, not final colors.
 
 | Screen | Name | Device | Purpose | Image | Stories |
 |---|---|---|---|---|---|
-| SCR-10.1 | Lines to Put Away | Handheld device | Choose a received item that must go into a slot. | [image](../docs/UI/images/scr-10-1-lines-to-put-away.png) | US-10.1 |
-| SCR-10.2 | Put Away Item | Handheld device | Confirm the slot and quantity. | [image](../docs/UI/images/scr-10-2-put-away-item.png) | US-10.1, US-10.2 |
-| SCR-10.3 | Put Away Done | Handheld device | Show the result and the new inventory. | [image](../docs/UI/images/scr-10-3-put-away-done.png) | US-10.3 |
+| SCR-10.1 | Lines to Put Away | Handheld device | Choose a received item that must go into a slot. | [image](../docs/ui/images/scr-10-1-lines-to-put-away.png) | US-10.1 |
+| SCR-10.2 | Put Away Item | Handheld device | Confirm the slot and quantity. | [image](../docs/ui/images/scr-10-2-put-away-item.png) | US-10.1, US-10.2 |
+| SCR-10.3 | Put Away Done | Handheld device | Show the result and the new inventory. | [image](../docs/ui/images/scr-10-3-put-away-done.png) | US-10.3 |
 
 ### SCR-10.1 — Lines to Put Away
 
-![SCR-10.1 Lines to Put Away](../docs/UI/images/scr-10-1-lines-to-put-away.png)
+![SCR-10.1 Lines to Put Away](../docs/ui/images/scr-10-1-lines-to-put-away.png)
 
 **Device:** Handheld device. **Purpose:** Choose a received item that must go into a slot.
 
-- Search box (Scan UPC or type order).
-- List of cards: Cola 12 oz can; Potato chips 8 oz; Mint gum 5-pack.
+- Scan box (focused): scan the UPC or type the order number, then Enter (ADR-012).
+- List of cards: Cola 12 oz can; Potato chips 8 oz; Mint gum 5-pack. Tapping a card opens put away.
 
 ### SCR-10.2 — Put Away Item
 
-![SCR-10.2 Put Away Item](../docs/UI/images/scr-10-2-put-away-item.png)
+![SCR-10.2 Put Away Item](../docs/ui/images/scr-10-2-put-away-item.png)
 
 **Device:** Handheld device. **Purpose:** Confirm the slot and quantity.
 
 - Details shown: Item, Order, Left to put away, Expires.
-- Fields: Slot (required), Quantity (required).
+- Fields: Scan slot (required, focused). The scanner types the slot code (`W-01 A1-02`) and presses Enter. The worker can also type the code. Quantity (required) is a number field, filled with the quantity left, and the worker can change it.
 - Message (info): Suggested: first empty slot in aisle order.
 - Buttons: Confirm put away, Choose another slot.
 
 ### SCR-10.3 — Put Away Done
 
-![SCR-10.3 Put Away Done](../docs/UI/images/scr-10-3-put-away-done.png)
+![SCR-10.3 Put Away Done](../docs/ui/images/scr-10-3-put-away-done.png)
 
 **Device:** Handheld device. **Purpose:** Show the result and the new inventory.
 
@@ -260,12 +260,12 @@ This feature is done when all of these are true:
 - [ ] All 7 Gherkin scenarios are automated and pass in the build.
 - [ ] The 4 API endpoints match the API Requirements table, are in the OpenAPI file, and have tests for success and for every listed error.
 - [ ] The role rules are enforced on the server for every endpoint, with a test for a role that is not allowed.
-- [ ] The screens (SCR-10.1, SCR-10.2, SCR-10.3) match the images in `docs/UI`, and were checked on: handheld device.
+- [ ] The screens (SCR-10.1, SCR-10.2, SCR-10.3) match the images in `docs/ui`, and were checked on: handheld device.
 - [ ] Validation messages show next to the field, and what the user typed stays on the screen after an error.
 - [ ] Database changes (tables, keys, unique rules, not-null rules, checks) are in a migration script and match the Initial Data Model.
 - [ ] Every create, edit, delete, and status change writes an audit log entry (who, when, what changed).
 - [ ] A failure test shows that when the inventory record cannot be saved, no put away and no slot change remain.
-- [ ] These non-functional checks pass (see [NFR](../docs/NFR.md)): NFR-U2, NFR-U4, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D2, NFR-A1, NFR-A2, NFR-M1.
+- [ ] These non-functional checks pass (see [NFR](../docs/nfr/nfr.md)): NFR-U2, NFR-U4, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D2, NFR-A1, NFR-A2, NFR-M1.
 - [ ] The code is reviewed in a pull request and merged into `main` with no open critical bugs.
 - [ ] This feature file, the UI images, and the API table are updated if anything changed during the build.
 

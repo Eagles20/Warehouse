@@ -5,7 +5,7 @@
 **Status:** Draft  
 **Created:** 2026-09-26 
 **Input:** Maintain supplier information used to place supplier orders.  
-**Depends on:** None
+**Depends on:** [Feature 1 — Maintain Company](feature-1-maintain-company.md)
 
 ---
 
@@ -57,9 +57,9 @@
 - **FR-004:** The system MUST allow authorized users to edit suppliers.
 - **FR-005:** The system MUST allow authorized users to delete suppliers.
 - **FR-006:** The system MUST allow authorized users to view suppliers.
-- **FR-007:** Required supplier information MUST be provided before the supplier can be saved (name, contact person, phone, address).
+- **FR-007:** Required supplier information MUST be provided before the supplier can be saved (company, name, contact person, phone, address line, city, state, zip, and our account number at the supplier).
 - **FR-008:** The system MUST reject duplicate supplier identifiers.
-- **FR-009:** The system MUST NOT delete a supplier that is used by an item or an open supplier order.
+- **FR-009:** The system MUST NOT delete a supplier that is used by an active supplier-item link or an open supplier order.
 - **FR-010:** Deleting a supplier MUST only remove it from active records, so other features keep the original supplier information.
 - **FR-011:** The system MUST NOT allow a supplier order for a supplier that does not exist.
 - **FR-012:** The system MUST let an inventory clerk, a warehouse worker, and a manager use this feature (main user: inventory clerk), and MUST NOT let other roles change its information.
@@ -70,12 +70,14 @@
 
 ## Assumptions
 
-- **A-1:** A supplier is a company that sells products to the warehouse. Contact is by phone, fax, or email.
-- **A-2:** The clerk types the supplier ID, or accepts the next free number. The ID never changes.
-- **A-3:** A supplier is "used" when an active item refers to it, or when a supplier order for it is Draft or Sent.
+- **A-1:** A supplier is a company that sells products to one of our companies. Contact is by phone, fax, or email. Suppliers are not shared between companies. The same vendor for two companies is two supplier records.
+- **A-2:** The clerk types the supplier ID, or accepts the next free number. The ID never changes. `supplier_id` is our ID for the supplier.
+- **A-3:** A supplier is "used" when an active supplier-item link refers to it, or when a supplier order for it is Draft or Sent.
 - **A-4:** Inventory clerks and managers add, edit, and delete. Warehouse workers view contact details when they receive an order (assumption: least privilege).
 - **A-5:** The list and the details screen show the date and time of the last change and who made it, because the feature is used every week (FR-014).
 - **A-6:** Phone and fax use the same format rule as company phone numbers (digits, spaces, +, -, brackets; at least 7 digits).
+- **A-7:** `account_number` is our account number at that supplier (the ID the supplier uses for us). It is stored on the supplier and printed on supplier orders. It is not the supplier's item number (that number is on the supplier-item link in Feature 3).
+- **A-8:** Address line, city, state, and zip use the same rules as a company address (Feature 1).
 
 ---
 
@@ -84,13 +86,15 @@
 | ID | Situation | Expected behavior | Related |
 |---|---|---|---|
 | EC-1 | The contact person or phone is missing. | The system does not save the supplier and marks the missing fields. | FR-007 |
-| EC-2 | A supplier has one active item and the clerk tries to delete it. | The system rejects the delete (IN_USE) and shows how many active items use the supplier. | FR-009 |
+| EC-2 | A supplier has one active supplier-item link and the clerk tries to delete it. | The system rejects the delete (IN_USE) and shows how many active items use the supplier. | FR-009 |
 | EC-3 | A supplier has a Sent order that has not been received yet. | The system rejects the delete. After the order is Received, the delete is allowed. | FR-009 |
 | EC-4 | A supplier order is created for a supplier that was deleted, or for an ID that never existed. | The system rejects the order (FR-011). Only active suppliers are offered in the order form. | FR-011 |
 | EC-5 | Fax is entered but phone is empty. | The system rejects the save, because phone is required. Fax is optional. | FR-007 |
 | EC-6 | The email address is invalid. | The system rejects the value. Email is optional, so an empty value is fine. | FR-007 |
 | EC-7 | Two clerks edit the same supplier at the same time. | The second save is rejected with VERSION_CONFLICT. | FR-008 |
 | EC-8 | The last changed time is shown for a record that was edited by a deleted employee. | The screen still shows the employee name as it was when the change was made. | FR-014 |
+| EC-9 | Address line, city, state, zip, or our account number is missing. | The system does not save the supplier and marks the missing fields. | FR-007 |
+| EC-10 | The company for a new supplier was deleted, or the clerk leaves company empty. | The system rejects the supplier. The company must be active. | FR-007 |
 
 ---
 
@@ -114,13 +118,18 @@
 
 ### Supplier
 
-- supplier_id: String — Required, unique
+- supplier_id: String — Required, unique. Our ID for this supplier.
+- company_id: Company reference — Required. Suppliers are not shared between companies.
+- account_number: String — Required. Our account number at this supplier (the ID the supplier uses for us).
 - name: String — Required
 - contact_person: String — Required
 - phone: String — Required
 - fax: String — Optional
 - email: String — Optional
-- address: String — Required
+- address_line: String — Required
+- city: String — Required
+- state: String — Required, 2-letter US state
+- zip: String — Required
 - is_active: Boolean — Required, false after delete
 
 ---
@@ -254,7 +263,8 @@
 | Data | Owner | This feature | Notes |
 |---|---|---|---|
 | Supplier | This feature (Feature 4) | Owns | Creates, edits, and sets suppliers inactive. |
-| Item | [Feature 3 — Maintain Items](feature-3-maintain-items.md) | Reads | Usage check: does an active item use this supplier? |
+| Company | [Feature 1 — Maintain Company](feature-1-maintain-company.md) | Reads | A supplier must refer to an active company. |
+| Supplier Item | [Feature 3 — Maintain Items](feature-3-maintain-items.md) | Reads | Usage check: does an active supplier-item link use this supplier? |
 | Supplier Order | [Feature 11 — Create Supplier Orders](feature-11-create-supplier-orders.md) | Reads | Usage check: is an order for this supplier Draft or Sent? |
 | Audit Log Entry | Platform (cross-cutting) | Updates (via owner) | Writes one entry for each change and denied attempt. The last changed date comes from the record itself. |
 
@@ -264,7 +274,7 @@
 
 ## API Requirements
 
-Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/NFR.md)).
+Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/adr/0003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/nfr/nfr.md)).
 
 | # | Method and path | Purpose | Allowed roles | Success | Errors | Supports |
 |---|---|---|---|---|---|---|
@@ -272,32 +282,33 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 | 2 | `POST /suppliers` | Add a supplier. | Inventory Clerk, Manager | 201 + Location | 400 VALIDATION_FAILED, 409 DUPLICATE | US-4.1 |
 | 3 | `GET /suppliers/{supplierId}` | Get one supplier. | Inventory Clerk, Warehouse Worker, Manager | 200 | 404 NOT_FOUND | US-4.4 |
 | 4 | `PUT /suppliers/{supplierId}` | Change a supplier. The body must include `version`. | Inventory Clerk, Manager | 200 | 400 VALIDATION_FAILED, 404 NOT_FOUND, 409 VERSION_CONFLICT | US-4.2 |
-| 5 | `DELETE /suppliers/{supplierId}` | Set a supplier inactive. | Inventory Clerk, Manager | 204 | 404 NOT_FOUND, 409 IN_USE (active item, or Draft or Sent order) | US-4.3 |
+| 5 | `DELETE /suppliers/{supplierId}` | Set a supplier inactive. | Inventory Clerk, Manager | 204 | 404 NOT_FOUND, 409 IN_USE (active supplier-item link, or Draft or Sent order) | US-4.3 |
 
 **Request and response notes**
 
-- Body: `supplier_id` (POST only), `name`, `contact_person`, `phone`, `fax` (optional), `email` (optional), `address`.
+- Body: `supplier_id` (POST only), `company_id`, `account_number`, `name`, `contact_person`, `phone`, `fax` (optional), `email` (optional), `address_line`, `city`, `state`, `zip`.
 - Responses include `updated_at` and `updated_by_name` for the last changed display.
 
 **Calls to other features (internal service calls, not public endpoints)**
 
-- Feature 3 — Maintain Items and Feature 11 — Create Supplier Orders: `countActiveItemsForSupplier`, `countOpenOrdersForSupplier` before a delete.
+- Feature 1 — Maintain Company: `isActive(companyId)` when a supplier is added.
+- Feature 3 — Maintain Items and Feature 11 — Create Supplier Orders: `countActiveSupplierItemsForSupplier`, `countOpenOrdersForSupplier` before a delete.
 
 ---
 
 ## Screen Requirements
 
-The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wireframe: it shows layout and content, not final colors.
+The screen images are in [docs/ui](../docs/ui/README.md). Each image is a wireframe: it shows layout and content, not final colors.
 
 | Screen | Name | Device | Purpose | Image | Stories |
 |---|---|---|---|---|---|
-| SCR-4.1 | Supplier List | Office computer | Find a supplier and see when each record was last changed. | [image](../docs/UI/images/scr-4-1-supplier-list.png) | US-4.4 |
-| SCR-4.2 | Add or Edit Supplier | Office computer | Enter or change supplier information. | [image](../docs/UI/images/scr-4-2-add-or-edit-supplier.png) | US-4.1, US-4.2 |
-| SCR-4.3 | Supplier Details | Office computer | Show supplier contact information when placing an order. | [image](../docs/UI/images/scr-4-3-supplier-details.png) | US-4.4, US-4.3 |
+| SCR-4.1 | Supplier List | Office computer | Find a supplier and see when each record was last changed. | [image](../docs/ui/images/scr-4-1-supplier-list.png) | US-4.4 |
+| SCR-4.2 | Add or Edit Supplier | Office computer | Enter or change supplier information. | [image](../docs/ui/images/scr-4-2-add-or-edit-supplier.png) | US-4.1, US-4.2 |
+| SCR-4.3 | Supplier Details | Office computer | Show supplier contact information when placing an order. | [image](../docs/ui/images/scr-4-3-supplier-details.png) | US-4.4, US-4.3 |
 
 ### SCR-4.1 — Supplier List
 
-![SCR-4.1 Supplier List](../docs/UI/images/scr-4-1-supplier-list.png)
+![SCR-4.1 Supplier List](../docs/ui/images/scr-4-1-supplier-list.png)
 
 **Device:** Office computer. **Purpose:** Find a supplier and see when each record was last changed.
 
@@ -307,20 +318,20 @@ The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wirefr
 
 ### SCR-4.2 — Add or Edit Supplier
 
-![SCR-4.2 Add or Edit Supplier](../docs/UI/images/scr-4-2-add-or-edit-supplier.png)
+![SCR-4.2 Add or Edit Supplier](../docs/ui/images/scr-4-2-add-or-edit-supplier.png)
 
 **Device:** Office computer. **Purpose:** Enter or change supplier information.
 
-- Fields: Supplier ID (required), Name (required), Contact person (required), Phone (required), Fax, Email, Address (required).
+- Fields: Supplier ID (required), Company (required), Our account number (required), Name (required), Contact person (required), Phone (required), Fax, Email, Address line (required), City (required), State (required), Zip (required).
 - Buttons: Save, Cancel.
 
 ### SCR-4.3 — Supplier Details
 
-![SCR-4.3 Supplier Details](../docs/UI/images/scr-4-3-supplier-details.png)
+![SCR-4.3 Supplier Details](../docs/ui/images/scr-4-3-supplier-details.png)
 
 **Device:** Office computer. **Purpose:** Show supplier contact information when placing an order.
 
-- Details shown: Supplier ID, Name, Contact person, Phone, Fax, Email, Address, Last changed.
+- Details shown: Supplier ID, Company, Our account number, Name, Contact person, Phone, Fax, Email, Address line, City, State, Zip, Last changed.
 - Message (info): Used by 14 active items and 1 open supplier order. This supplier cannot be deleted.
 - Buttons: Back to list, Edit, Delete.
 
@@ -335,12 +346,12 @@ This feature is done when all of these are true:
 - [ ] All 13 Gherkin scenarios are automated and pass in the build.
 - [ ] The 5 API endpoints match the API Requirements table, are in the OpenAPI file, and have tests for success and for every listed error.
 - [ ] The role rules are enforced on the server for every endpoint, with a test for a role that is not allowed.
-- [ ] The screens (SCR-4.1, SCR-4.2, SCR-4.3) match the images in `docs/UI`, and were checked on: office computer.
+- [ ] The screens (SCR-4.1, SCR-4.2, SCR-4.3) match the images in `docs/ui`, and were checked on: office computer.
 - [ ] Validation messages show next to the field, and what the user typed stays on the screen after an error.
 - [ ] Database changes (tables, keys, unique rules, not-null rules, checks) are in a migration script and match the Initial Data Model.
 - [ ] Every create, edit, delete, and status change writes an audit log entry (who, when, what changed).
 - [ ] The last changed date and name show on the list and the details screens, and a test checks the value after an edit.
-- [ ] These non-functional checks pass (see [NFR](../docs/NFR.md)): NFR-U1, NFR-U6, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D3, NFR-D4, NFR-A1, NFR-M1.
+- [ ] These non-functional checks pass (see [NFR](../docs/nfr/nfr.md)): NFR-U1, NFR-U6, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D3, NFR-D4, NFR-A1, NFR-M1.
 - [ ] The code is reviewed in a pull request and merged into `main` with no open critical bugs.
 - [ ] This feature file, the UI images, and the API table are updated if anything changed during the build.
 

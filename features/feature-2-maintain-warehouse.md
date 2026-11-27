@@ -66,7 +66,7 @@
 - **FR-004:** The system MUST allow authorized users to edit warehouses.
 - **FR-005:** The system MUST allow authorized users to delete warehouses.
 - **FR-006:** The system MUST allow authorized users to view warehouses.
-- **FR-007:** Required warehouse information MUST be provided before the warehouse can be saved (name, address).
+- **FR-007:** Required warehouse information MUST be provided before the warehouse can be saved (name, address line, city, state, zip). Address fields use the same rules as a company address (Feature 1).
 - **FR-008:** The system MUST reject duplicate warehouse identifiers.
 - **FR-009:** The system MUST NOT delete a warehouse that is used by inventory in its slots or an open inventory count.
 - **FR-010:** Deleting a warehouse MUST only remove it from active records, so other features keep the original warehouse information.
@@ -131,7 +131,10 @@
 - warehouse_id: String — Required, unique
 - company_id: Company reference — Required
 - name: String — Required
-- address: String — Required
+- address_line: String — Required
+- city: String — Required
+- state: String — Required, 2-letter US state
+- zip: String — Required
 - forklift_count: Integer — Optional, zero or greater
 - is_active: Boolean — Required, false after delete
 
@@ -272,7 +275,7 @@
 
 ## API Requirements
 
-Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/NFR.md)).
+Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/adr/0003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/nfr/nfr.md)).
 
 | # | Method and path | Purpose | Allowed roles | Success | Errors | Supports |
 |---|---|---|---|---|---|---|
@@ -286,7 +289,7 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 **Request and response notes**
 
-- Warehouse body: `warehouse_id` (POST only), `company_id`, `name`, `address`, `forklift_count` (optional).
+- Warehouse body: `warehouse_id` (POST only), `company_id`, `name`, `address_line`, `city`, `state`, `zip`, `forklift_count` (optional).
 - Slot body: `slot_id`, `aisle_number` (greater than zero), `shelf`, `bin`. The server ignores any `status` sent by the client.
 
 **Calls to other features (internal service calls, not public endpoints)**
@@ -299,31 +302,31 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 ## Screen Requirements
 
-The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wireframe: it shows layout and content, not final colors.
+The screen images are in [docs/ui](../docs/ui/README.md). Each image is a wireframe: it shows layout and content, not final colors.
 
 | Screen | Name | Device | Purpose | Image | Stories |
 |---|---|---|---|---|---|
-| SCR-2.1 | Warehouse List | Office computer | Find a warehouse and start an add, edit, or delete. | [image](../docs/UI/images/scr-2-1-warehouse-list.png) | US-2.4 |
-| SCR-2.2 | Add or Edit Warehouse | Office computer | Enter or change warehouse information, then confirm the save. | [image](../docs/UI/images/scr-2-2-add-or-edit-warehouse.png) | US-2.1, US-2.2 |
-| SCR-2.3 | Warehouse Details and Slots | Office computer | Show the warehouse and its slots, and add a slot. | [image](../docs/UI/images/scr-2-3-warehouse-details-and-slots.png) | US-2.4, US-2.5 |
+| SCR-2.1 | Warehouse List | Office computer | Find a warehouse and start an add, edit, or delete. | [image](../docs/ui/images/scr-2-1-warehouse-list.png) | US-2.4 |
+| SCR-2.2 | Add or Edit Warehouse | Office computer | Enter or change warehouse information, then confirm the save. | [image](../docs/ui/images/scr-2-2-add-or-edit-warehouse.png) | US-2.1, US-2.2 |
+| SCR-2.3 | Warehouse Details and Slots | Office computer | Show the warehouse and its slots, and add a slot. | [image](../docs/ui/images/scr-2-3-warehouse-details-and-slots.png) | US-2.4, US-2.5 |
 
 ### SCR-2.1 — Warehouse List
 
-![SCR-2.1 Warehouse List](../docs/UI/images/scr-2-1-warehouse-list.png)
+![SCR-2.1 Warehouse List](../docs/ui/images/scr-2-1-warehouse-list.png)
 
 **Device:** Office computer. **Purpose:** Find a warehouse and start an add, edit, or delete.
 
 - Search box (Search by name or ID) and filters (Company, Show deleted).
-- Table with columns: ID, Name, Company, Address, Slots (empty / total), Status.
+- Table with columns: ID, Name, Company, City, State, Slots (empty / total), Status.
 - Buttons: Add warehouse.
 
 ### SCR-2.2 — Add or Edit Warehouse
 
-![SCR-2.2 Add or Edit Warehouse](../docs/UI/images/scr-2-2-add-or-edit-warehouse.png)
+![SCR-2.2 Add or Edit Warehouse](../docs/ui/images/scr-2-2-add-or-edit-warehouse.png)
 
 **Device:** Office computer. **Purpose:** Enter or change warehouse information, then confirm the save.
 
-- Fields: Warehouse ID (required), Company (required), Name (required), Address (required), Forklift count.
+- Fields: Warehouse ID (required), Company (required), Name (required), Address line (required), City (required), State (required), Zip (required), Forklift count.
 - Message (warn): Confirm: Save changes to warehouse W-03?  [Yes, save]  [No, go back]
 - Buttons: Save, Cancel.
 - The confirmation message appears every time the clerk clicks Save (FR-016).
@@ -331,11 +334,11 @@ The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wirefr
 
 ### SCR-2.3 — Warehouse Details and Slots
 
-![SCR-2.3 Warehouse Details and Slots](../docs/UI/images/scr-2-3-warehouse-details-and-slots.png)
+![SCR-2.3 Warehouse Details and Slots](../docs/ui/images/scr-2-3-warehouse-details-and-slots.png)
 
 **Device:** Office computer. **Purpose:** Show the warehouse and its slots, and add a slot.
 
-- Details shown: Warehouse ID, Company, Address, Forklifts, Status.
+- Details shown: Warehouse ID, Company, Address line, City, State, Zip, Forklifts, Status.
 - Table with columns: Slot ID, Aisle, Shelf, Bin, Status. Sorted by aisle, shelf, bin.
 - Add storage slot: Aisle number (required), Shelf (required), Bin (required).
 - Buttons: Add slot, Edit warehouse, Delete warehouse.
@@ -353,12 +356,12 @@ This feature is done when all of these are true:
 - [ ] All 15 Gherkin scenarios are automated and pass in the build.
 - [ ] The 7 API endpoints match the API Requirements table, are in the OpenAPI file, and have tests for success and for every listed error.
 - [ ] The role rules are enforced on the server for every endpoint, with a test for a role that is not allowed.
-- [ ] The screens (SCR-2.1, SCR-2.2, SCR-2.3) match the images in `docs/UI`, and were checked on: office computer.
+- [ ] The screens (SCR-2.1, SCR-2.2, SCR-2.3) match the images in `docs/ui`, and were checked on: office computer.
 - [ ] Validation messages show next to the field, and what the user typed stays on the screen after an error.
 - [ ] Database changes (tables, keys, unique rules, not-null rules, checks) are in a migration script and match the Initial Data Model.
 - [ ] Every create, edit, delete, and status change writes an audit log entry (who, when, what changed).
 - [ ] A test shows that the slot status changes only through the slot status service, and never through a public endpoint.
-- [ ] These non-functional checks pass (see [NFR](../docs/NFR.md)): NFR-U1, NFR-U5, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D2, NFR-D3, NFR-D4, NFR-A1, NFR-M1.
+- [ ] These non-functional checks pass (see [NFR](../docs/nfr/nfr.md)): NFR-U1, NFR-U5, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D2, NFR-D3, NFR-D4, NFR-A1, NFR-M1.
 - [ ] The code is reviewed in a pull request and merged into `main` with no open critical bugs.
 - [ ] This feature file, the UI images, and the API table are updated if anything changed during the build.
 

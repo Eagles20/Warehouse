@@ -58,13 +58,13 @@
 
 ## Assumptions
 
-- **A-1:** A supplier order has one supplier and one or more lines (item and quantity). All items on one order belong to that supplier.
+- **A-1:** A supplier order has one supplier and one or more lines (item and quantity). Every item on the order must have an active supplier-item link to that supplier (Feature 3). The line copies that link's supplier item number and unit cost. An item bought from two suppliers can appear on an order for either supplier, not on both at once.
 - **A-2:** Order status: Draft (being prepared) → Sent (printed or faxed to the supplier) → Received (set by Feature 8). A Draft can be cancelled by deleting it.
 - **A-3:** Suggested quantity per item: if (on hand + on order) is below the minimum, suggest maximum − on hand − on order. On order means quantity on Sent orders not yet Received (FR-002, FR-003).
 - **A-4:** If the item has a case quantity, the suggestion is rounded to the nearest whole number of cases. If rounding gives 0, the item is left out of the suggestion (FR-004).
 - **A-5:** The clerk can change a suggested quantity before saving. The quantity must be greater than 0.
 - **A-6:** "Send" locks the order and shows a printable PDF for printing or faxing (ADR-011). The system does not send the fax or email itself.
-- **A-7:** Only active suppliers and active items are used (FR-005, Feature 4).
+- **A-7:** Only active suppliers and active items of the same company are used (FR-005, Feature 4). Suggestions include only items linked to the chosen supplier. The printed order shows our account number from the supplier and the supplier item number on each line (ADR-011).
 - **A-8:** Inventory clerks and managers use this feature on an office computer.
 
 ---
@@ -83,6 +83,7 @@
 | EC-8 | The clerk tries to edit a Sent order. | The system rejects it. A Sent order is locked, and the clerk creates a new order for changes. | FR-007, FR-008 |
 | EC-9 | The same item is added twice to one order. | The system merges them into one line (the quantities are added). | FR-006 |
 | EC-10 | Two clerks create orders for the same supplier on the same day. | Both orders are saved. On-order quantities of Sent orders are counted by the next suggestion, so double ordering is avoided once the first is Sent. | FR-002 |
+| EC-11 | The clerk adds an item that has no supplier-item link to this supplier. | The system rejects the line. The item can still be ordered from a supplier that does sell it. | FR-006 |
 
 ---
 
@@ -120,7 +121,8 @@
 - supplier_order_id: Supplier Order reference — Required
 - item_id: Item reference — Required
 - quantity_ordered: Integer — Required, greater than zero
-- unit_cost: Decimal — Required, zero or greater
+- supplier_item_number: String — Required, copied from the supplier-item link
+- unit_cost: Decimal — Required, zero or greater, copied from the supplier-item link when the order is saved
 
 ### Reorder Values (calculated from Item and Inventory)
 
@@ -224,7 +226,7 @@
 
 ## API Requirements
 
-Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/NFR.md)).
+Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/adr/0003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/nfr/nfr.md)).
 
 | # | Method and path | Purpose | Allowed roles | Success | Errors | Supports |
 |---|---|---|---|---|---|---|
@@ -239,13 +241,13 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 **Request and response notes**
 
-- Suggestions response: for each item below minimum: `item_id`, `on_hand`, `on_order`, `minimum`, `maximum`, `case_quantity`, `suggested_quantity`.
-- Order body: `supplier_id`, `lines` = list of {`item_id`, `quantity_ordered`}.
+- Suggestions response: for each item below minimum that this supplier sells: `item_id`, `supplier_item_number`, `unit_cost`, `on_hand`, `on_order`, `minimum`, `maximum`, `case_quantity`, `suggested_quantity`.
+- Order body: `supplier_id`, `lines` = list of {`item_id`, `quantity_ordered`}. The server copies `supplier_item_number` and `unit_cost` from the supplier-item link. It rejects an item that this supplier does not sell.
 
 **Calls to other features (internal service calls, not public endpoints)**
 
 - Feature 4 — Maintain Suppliers: `isActive(supplierId)`.
-- Feature 3 — Maintain Items: item minimum, maximum, case quantity.
+- Feature 3 — Maintain Items: item minimum, maximum, case quantity, and the supplier-item link (supplier item number and unit cost) for the chosen supplier.
 - Feature 9 — Maintain Inventory: `sumOnHand(itemId)`.
 - Feature 8 calls this feature's `markReceived(orderId)`.
 
@@ -253,17 +255,17 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 ## Screen Requirements
 
-The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wireframe: it shows layout and content, not final colors.
+The screen images are in [docs/ui](../docs/ui/README.md). Each image is a wireframe: it shows layout and content, not final colors.
 
 | Screen | Name | Device | Purpose | Image | Stories |
 |---|---|---|---|---|---|
-| SCR-11.1 | Supplier Order List | Office computer | See orders and their status. | [image](../docs/UI/images/scr-11-1-supplier-order-list.png) | US-11.1 |
-| SCR-11.2 | Create Supplier Order | Office computer | Pick a supplier, review the suggested quantities, and save. | [image](../docs/UI/images/scr-11-2-create-supplier-order.png) | US-11.1, US-11.2 |
-| SCR-11.3 | Supplier Order Details | Office computer | Show an order and print it for the supplier. | [image](../docs/UI/images/scr-11-3-supplier-order-details.png) | US-11.3 |
+| SCR-11.1 | Supplier Order List | Office computer | See orders and their status. | [image](../docs/ui/images/scr-11-1-supplier-order-list.png) | US-11.1 |
+| SCR-11.2 | Create Supplier Order | Office computer | Pick a supplier, review the suggested quantities, and save. | [image](../docs/ui/images/scr-11-2-create-supplier-order.png) | US-11.1, US-11.2 |
+| SCR-11.3 | Supplier Order Details | Office computer | Show an order and print it for the supplier. | [image](../docs/ui/images/scr-11-3-supplier-order-details.png) | US-11.3 |
 
 ### SCR-11.1 — Supplier Order List
 
-![SCR-11.1 Supplier Order List](../docs/UI/images/scr-11-1-supplier-order-list.png)
+![SCR-11.1 Supplier Order List](../docs/ui/images/scr-11-1-supplier-order-list.png)
 
 **Device:** Office computer. **Purpose:** See orders and their status.
 
@@ -273,22 +275,22 @@ The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wirefr
 
 ### SCR-11.2 — Create Supplier Order
 
-![SCR-11.2 Create Supplier Order](../docs/UI/images/scr-11-2-create-supplier-order.png)
+![SCR-11.2 Create Supplier Order](../docs/ui/images/scr-11-2-create-supplier-order.png)
 
 **Device:** Office computer. **Purpose:** Pick a supplier, review the suggested quantities, and save.
 
 - Fields: Supplier (required).
-- Table with columns: Item, On hand, On order, Min / Max, Case, Order qty. Suggested: maximum - on hand - on order, rounded to cases.
+- Table with columns: Item, Supplier item number, Unit cost, On hand, On order, Min / Max, Case, Order qty. Only items this supplier sells are listed. Suggested: maximum - on hand - on order, rounded to cases. Order qty is a number field.
 - Buttons: Save draft, Save and send, Cancel.
 
 ### SCR-11.3 — Supplier Order Details
 
-![SCR-11.3 Supplier Order Details](../docs/UI/images/scr-11-3-supplier-order-details.png)
+![SCR-11.3 Supplier Order Details](../docs/ui/images/scr-11-3-supplier-order-details.png)
 
 **Device:** Office computer. **Purpose:** Show an order and print it for the supplier.
 
-- Details shown: Order, Supplier, Fax, Status, Sent.
-- Table with columns: Item, Qty ordered.
+- Details shown: Order, Supplier, Our account number, Fax, Status, Sent.
+- Table with columns: Supplier item number, Item, Unit cost, Qty ordered.
 - Buttons: Print / download PDF, Back to list.
 
 ---
@@ -302,12 +304,12 @@ This feature is done when all of these are true:
 - [ ] All 11 Gherkin scenarios are automated and pass in the build.
 - [ ] The 8 API endpoints match the API Requirements table, are in the OpenAPI file, and have tests for success and for every listed error.
 - [ ] The role rules are enforced on the server for every endpoint, with a test for a role that is not allowed.
-- [ ] The screens (SCR-11.1, SCR-11.2, SCR-11.3) match the images in `docs/UI`, and were checked on: office computer.
+- [ ] The screens (SCR-11.1, SCR-11.2, SCR-11.3) match the images in `docs/ui`, and were checked on: office computer.
 - [ ] Validation messages show next to the field, and what the user typed stays on the screen after an error.
 - [ ] Database changes (tables, keys, unique rules, not-null rules, checks) are in a migration script and match the Initial Data Model.
 - [ ] Every create, edit, delete, and status change writes an audit log entry (who, when, what changed).
 - [ ] A table-driven test covers the quantity calculation: below and above minimum, with and without case quantity, with on-order quantity.
-- [ ] These non-functional checks pass (see [NFR](../docs/NFR.md)): NFR-U1, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D2, NFR-D3, NFR-A1, NFR-M1.
+- [ ] These non-functional checks pass (see [NFR](../docs/nfr/nfr.md)): NFR-U1, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D2, NFR-D3, NFR-A1, NFR-M1.
 - [ ] The code is reviewed in a pull request and merged into `main` with no open critical bugs.
 - [ ] This feature file, the UI images, and the API table are updated if anything changed during the build.
 

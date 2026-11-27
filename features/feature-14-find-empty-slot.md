@@ -141,7 +141,7 @@
 
 ## API Requirements
 
-Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/NFR.md)).
+Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/adr/0003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/nfr/nfr.md)).
 
 | # | Method and path | Purpose | Allowed roles | Success | Errors | Supports |
 |---|---|---|---|---|---|---|
@@ -160,16 +160,16 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 ## Screen Requirements
 
-The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wireframe: it shows layout and content, not final colors.
+The screen images are in [docs/ui](../docs/ui/README.md). Each image is a wireframe: it shows layout and content, not final colors.
 
 | Screen | Name | Device | Purpose | Image | Stories |
 |---|---|---|---|---|---|
-| SCR-14.1 | Find Empty Slot | Handheld device | Choose a warehouse and see the suggested empty slot. | [image](../docs/UI/images/scr-14-1-find-empty-slot.png) | US-14.1 |
-| SCR-14.2 | No Empty Slots | Handheld device | Tell the worker that the warehouse is full. | [image](../docs/UI/images/scr-14-2-no-empty-slots.png) | US-14.2 |
+| SCR-14.1 | Find Empty Slot | Handheld device | Choose a warehouse and see the suggested empty slot. | [image](../docs/ui/images/scr-14-1-find-empty-slot.png) | US-14.1 |
+| SCR-14.2 | No Empty Slots | Handheld device | Tell the worker that the warehouse is full. | [image](../docs/ui/images/scr-14-2-no-empty-slots.png) | US-14.2 |
 
 ### SCR-14.1 — Find Empty Slot
 
-![SCR-14.1 Find Empty Slot](../docs/UI/images/scr-14-1-find-empty-slot.png)
+![SCR-14.1 Find Empty Slot](../docs/ui/images/scr-14-1-find-empty-slot.png)
 
 **Device:** Handheld device. **Purpose:** Choose a warehouse and see the suggested empty slot.
 
@@ -180,7 +180,7 @@ The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wirefr
 
 ### SCR-14.2 — No Empty Slots
 
-![SCR-14.2 No Empty Slots](../docs/UI/images/scr-14-2-no-empty-slots.png)
+![SCR-14.2 No Empty Slots](../docs/ui/images/scr-14-2-no-empty-slots.png)
 
 **Device:** Handheld device. **Purpose:** Tell the worker that the warehouse is full.
 
@@ -199,12 +199,12 @@ This feature is done when all of these are true:
 - [ ] All 4 Gherkin scenarios are automated and pass in the build.
 - [ ] The 2 API endpoints match the API Requirements table, are in the OpenAPI file, and have tests for success and for every listed error.
 - [ ] The role rules are enforced on the server for every endpoint, with a test for a role that is not allowed.
-- [ ] The screens (SCR-14.1, SCR-14.2) match the images in `docs/UI`, and were checked on: handheld device.
+- [ ] The screens (SCR-14.1, SCR-14.2) match the images in `docs/ui`, and were checked on: handheld device.
 - [ ] Validation messages show next to the field, and what the user typed stays on the screen after an error.
 - [ ] Database changes (tables, keys, unique rules, not-null rules, checks) are in a migration script and match the Initial Data Model.
 - [ ] The feature changes no data: a test shows that no table is changed by any of its endpoints.
 - [ ] A test shows that aisle numbers are sorted as numbers (1, 2, 10) and not as text.
-- [ ] These non-functional checks pass (see [NFR](../docs/NFR.md)): NFR-U2, NFR-U4, NFR-U9, NFR-P1, NFR-P2, NFR-S1, NFR-S2, NFR-S4, NFR-M1.
+- [ ] These non-functional checks pass (see [NFR](../docs/nfr/nfr.md)): NFR-U2, NFR-U4, NFR-U9, NFR-P1, NFR-P2, NFR-S1, NFR-S2, NFR-S4, NFR-M1.
 - [ ] The code is reviewed in a pull request and merged into `main` with no open critical bugs.
 - [ ] This feature file, the UI images, and the API table are updated if anything changed during the build.
 

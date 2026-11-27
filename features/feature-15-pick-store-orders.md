@@ -192,7 +192,7 @@
 
 ## API Requirements
 
-Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/NFR.md)).
+Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/adr/0003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/nfr/nfr.md)).
 
 | # | Method and path | Purpose | Allowed roles | Success | Errors | Supports |
 |---|---|---|---|---|---|---|
@@ -217,36 +217,38 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 ## Screen Requirements
 
-The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wireframe: it shows layout and content, not final colors.
+The screen images are in [docs/ui](../docs/ui/README.md). Each image is a wireframe: it shows layout and content, not final colors.
 
 | Screen | Name | Device | Purpose | Image | Stories |
 |---|---|---|---|---|---|
-| SCR-15.1 | Orders to Pick | Handheld device | Choose a store order to pick. | [image](../docs/UI/images/scr-15-1-orders-to-pick.png) | US-15.1 |
-| SCR-15.2 | Pick Lines | Handheld device | Walk the aisles in order and record each quantity. | [image](../docs/UI/images/scr-15-2-pick-lines.png) | US-15.2 |
-| SCR-15.3 | Short Picks | Office computer | Show lines where less was picked than ordered. | [image](../docs/UI/images/scr-15-3-short-picks.png) | US-15.3 |
+| SCR-15.1 | Orders to Pick | Handheld device | Choose a store order to pick. | [image](../docs/ui/images/scr-15-1-orders-to-pick.png) | US-15.1 |
+| SCR-15.2 | Pick Lines | Handheld device | Walk the aisles in order and record each quantity. | [image](../docs/ui/images/scr-15-2-pick-lines.png) | US-15.2 |
+| SCR-15.3 | Short Picks | Office computer | Show lines where less was picked than ordered. | [image](../docs/ui/images/scr-15-3-short-picks.png) | US-15.3 |
 
 ### SCR-15.1 — Orders to Pick
 
-![SCR-15.1 Orders to Pick](../docs/UI/images/scr-15-1-orders-to-pick.png)
+![SCR-15.1 Orders to Pick](../docs/ui/images/scr-15-1-orders-to-pick.png)
 
 **Device:** Handheld device. **Purpose:** Choose a store order to pick.
 
-- List of cards: ORD-310  Corner Mart #12; ORD-312  Lakeview Grocery.
+- Scan box (focused): scan the order label or type the order number, then Enter (ADR-012).
+- List of cards: ORD-310  Corner Mart #12; ORD-312  Lakeview Grocery. Tapping a card opens the pick lines.
 
 ### SCR-15.2 — Pick Lines
 
-![SCR-15.2 Pick Lines](../docs/UI/images/scr-15-2-pick-lines.png)
+![SCR-15.2 Pick Lines](../docs/ui/images/scr-15-2-pick-lines.png)
 
 **Device:** Handheld device. **Purpose:** Walk the aisles in order and record each quantity.
 
+- Scan box (focused): scan the slot label to open that line. The worker can also tap a line.
 - Details shown: Order, Progress.
-- List of cards: Aisle 1  A-01; Aisle 1  B-02; Aisle 3  A-04.
-- Buttons: Save line, Finish picking.
+- List of cards: Aisle 1  A-01; Aisle 1  B-02; Aisle 3  A-04. The open line shows a **Picked** number field. Plan stays read only.
+- Buttons: Save line (writes the Picked field), Finish picking.
 - Finish picking is enabled when every line has a quantity.
 
 ### SCR-15.3 — Short Picks
 
-![SCR-15.3 Short Picks](../docs/UI/images/scr-15-3-short-picks.png)
+![SCR-15.3 Short Picks](../docs/ui/images/scr-15-3-short-picks.png)
 
 **Device:** Office computer. **Purpose:** Show lines where less was picked than ordered.
 
@@ -264,12 +266,12 @@ This feature is done when all of these are true:
 - [ ] All 8 Gherkin scenarios are automated and pass in the build.
 - [ ] The 6 API endpoints match the API Requirements table, are in the OpenAPI file, and have tests for success and for every listed error.
 - [ ] The role rules are enforced on the server for every endpoint, with a test for a role that is not allowed.
-- [ ] The screens (SCR-15.1, SCR-15.2, SCR-15.3) match the images in `docs/UI`, and were checked on: handheld device, office computer.
+- [ ] The screens (SCR-15.1, SCR-15.2, SCR-15.3) match the images in `docs/ui`, and were checked on: handheld device, office computer.
 - [ ] Validation messages show next to the field, and what the user typed stays on the screen after an error.
 - [ ] Database changes (tables, keys, unique rules, not-null rules, checks) are in a migration script and match the Initial Data Model.
 - [ ] Every create, edit, delete, and status change writes an audit log entry (who, when, what changed).
 - [ ] A test shows that expired stock is never chosen, and that creating a pick list does not change quantity on hand.
-- [ ] These non-functional checks pass (see [NFR](../docs/NFR.md)): NFR-U2, NFR-U4, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D2, NFR-D3, NFR-A1, NFR-A2, NFR-M1.
+- [ ] These non-functional checks pass (see [NFR](../docs/nfr/nfr.md)): NFR-U2, NFR-U4, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D2, NFR-D3, NFR-A1, NFR-A2, NFR-M1.
 - [ ] The code is reviewed in a pull request and merged into `main` with no open critical bugs.
 - [ ] This feature file, the UI images, and the API table are updated if anything changed during the build.
 

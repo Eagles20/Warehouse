@@ -204,7 +204,7 @@ Feature 20 owns no data table. It is the working screen and rules for counts tha
 
 ## API Requirements
 
-Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/NFR.md)).
+Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/adr/0003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/nfr/nfr.md)).
 
 | # | Method and path | Purpose | Allowed roles | Success | Errors | Supports |
 |---|---|---|---|---|---|---|
@@ -226,17 +226,17 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 ## Screen Requirements
 
-The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wireframe: it shows layout and content, not final colors.
+The screen images are in [docs/ui](../docs/ui/README.md). Each image is a wireframe: it shows layout and content, not final colors.
 
 | Screen | Name | Device | Purpose | Image | Stories |
 |---|---|---|---|---|---|
-| SCR-20.1 | Count Lines | Handheld device | Walk through the slots and enter what you count. | [image](../docs/UI/images/scr-20-1-count-lines.png) | US-20.1 |
-| SCR-20.2 | Variance Review | Office computer | Review differences before closing. | [image](../docs/UI/images/scr-20-2-variance-review.png) | US-20.2, US-20.3 |
-| SCR-20.3 | Cannot Close | Office computer | Stop closing when lines are not counted. | [image](../docs/UI/images/scr-20-3-cannot-close.png) | US-20.3 |
+| SCR-20.1 | Count Lines | Handheld device | Walk through the slots and enter what you count. | [image](../docs/ui/images/scr-20-1-count-lines.png) | US-20.1 |
+| SCR-20.2 | Variance Review | Office computer | Review differences before closing. | [image](../docs/ui/images/scr-20-2-variance-review.png) | US-20.2, US-20.3 |
+| SCR-20.3 | Cannot Close | Office computer | Stop closing when lines are not counted. | [image](../docs/ui/images/scr-20-3-cannot-close.png) | US-20.3 |
 
 ### SCR-20.1 — Count Lines
 
-![SCR-20.1 Count Lines](../docs/UI/images/scr-20-1-count-lines.png)
+![SCR-20.1 Count Lines](../docs/ui/images/scr-20-1-count-lines.png)
 
 **Device:** Handheld device. **Purpose:** Walk through the slots and enter what you count.
 
@@ -246,7 +246,7 @@ The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wirefr
 
 ### SCR-20.2 — Variance Review
 
-![SCR-20.2 Variance Review](../docs/UI/images/scr-20-2-variance-review.png)
+![SCR-20.2 Variance Review](../docs/ui/images/scr-20-2-variance-review.png)
 
 **Device:** Office computer. **Purpose:** Review differences before closing.
 
@@ -256,7 +256,7 @@ The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wirefr
 
 ### SCR-20.3 — Cannot Close
 
-![SCR-20.3 Cannot Close](../docs/UI/images/scr-20-3-cannot-close.png)
+![SCR-20.3 Cannot Close](../docs/ui/images/scr-20-3-cannot-close.png)
 
 **Device:** Office computer. **Purpose:** Stop closing when lines are not counted.
 
@@ -275,12 +275,12 @@ This feature is done when all of these are true:
 - [ ] All 9 Gherkin scenarios are automated and pass in the build.
 - [ ] The 4 API endpoints match the API Requirements table, are in the OpenAPI file, and have tests for success and for every listed error.
 - [ ] The role rules are enforced on the server for every endpoint, with a test for a role that is not allowed.
-- [ ] The screens (SCR-20.1, SCR-20.2, SCR-20.3) match the images in `docs/UI`, and were checked on: handheld device, office computer.
+- [ ] The screens (SCR-20.1, SCR-20.2, SCR-20.3) match the images in `docs/ui`, and were checked on: handheld device, office computer.
 - [ ] Validation messages show next to the field, and what the user typed stays on the screen after an error.
 - [ ] Database changes (tables, keys, unique rules, not-null rules, checks) are in a migration script and match the Initial Data Model.
 - [ ] Every create, edit, delete, and status change writes an audit log entry (who, when, what changed).
 - [ ] A failure test shows that when one adjustment fails during close, the count stays Counted and no inventory changes.
-- [ ] These non-functional checks pass (see [NFR](../docs/NFR.md)): NFR-U2, NFR-U7, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D2, NFR-D3, NFR-A1, NFR-A2, NFR-M1.
+- [ ] These non-functional checks pass (see [NFR](../docs/nfr/nfr.md)): NFR-U2, NFR-U7, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D2, NFR-D3, NFR-A1, NFR-A2, NFR-M1.
 - [ ] The code is reviewed in a pull request and merged into `main` with no open critical bugs.
 - [ ] This feature file, the UI images, and the API table are updated if anything changed during the build.
 

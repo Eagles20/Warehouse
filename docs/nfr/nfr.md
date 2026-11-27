@@ -105,8 +105,8 @@ App-wide quality targets for the **Warehouse** system.
 ## Changing a requirement
 
 1. Edit the **Target**, **Approach**, **Status**, or **Links** in the table above.
-2. If the **Approach** changes, write or update an [ADR](ADRs/README.md) and add it to **Links**.
+2. If the **Approach** changes, write or update an [ADR](../adr/README.md) and add it to **Links**.
 3. If a code is added or removed for a feature, update the traceability table and that feature's **Definition of Done**.
 4. Change **Deferred** to **Accepted** only when a test or check can prove it.
 
-See also: [ADRs](ADRs/README.md), [Architecture diagrams](Arch_Diagrams/README.md), [UI screens](UI/README.md).
+See also: [ADRs](../adr/README.md), [Architecture diagrams](../arch_diagrams/README.md), [UI screens](../ui/README.md).

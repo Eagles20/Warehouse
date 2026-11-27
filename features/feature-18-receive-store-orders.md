@@ -183,7 +183,7 @@
 
 ## API Requirements
 
-Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/NFR.md)).
+Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/adr/0003-rest-api-conventions.md) (JSON, problem+json errors, `version` field for optimistic locking). Roles are checked on the server for every call ([NFR-S2](../docs/nfr/nfr.md)).
 
 | # | Method and path | Purpose | Allowed roles | Success | Errors | Supports |
 |---|---|---|---|---|---|---|
@@ -205,36 +205,38 @@ Base path: `/api/v1`. All endpoints follow [ADR-003](../docs/ADRs/ADR-003-rest-a
 
 ## Screen Requirements
 
-The screen images are in [docs/UI](../docs/UI/README.md). Each image is a wireframe: it shows layout and content, not final colors.
+The screen images are in [docs/ui](../docs/ui/README.md). Each image is a wireframe: it shows layout and content, not final colors.
 
 | Screen | Name | Device | Purpose | Image | Stories |
 |---|---|---|---|---|---|
-| SCR-18.1 | My Deliveries | Phone (driver at the store) | Show shipped orders on the driver's route, in stop order. | [image](../docs/UI/images/scr-18-1-my-deliveries.png) | US-18.1 |
-| SCR-18.2 | Confirm Delivery | Phone (driver at the store) | Enter delivered quantities and who received the order. | [image](../docs/UI/images/scr-18-2-confirm-delivery.png) | US-18.2, US-18.3 |
-| SCR-18.3 | Delivery History | Office computer | Show past deliveries and exceptions. | [image](../docs/UI/images/scr-18-3-delivery-history.png) | US-18.3 |
+| SCR-18.1 | My Deliveries | Phone (driver at the store) | Show shipped orders on the driver's route, in stop order. | [image](../docs/ui/images/scr-18-1-my-deliveries.png) | US-18.1 |
+| SCR-18.2 | Confirm Delivery | Phone (driver at the store) | Enter delivered quantities and who received the order. | [image](../docs/ui/images/scr-18-2-confirm-delivery.png) | US-18.2, US-18.3 |
+| SCR-18.3 | Delivery History | Office computer | Show past deliveries and exceptions. | [image](../docs/ui/images/scr-18-3-delivery-history.png) | US-18.3 |
 
 ### SCR-18.1 — My Deliveries
 
-![SCR-18.1 My Deliveries](../docs/UI/images/scr-18-1-my-deliveries.png)
+![SCR-18.1 My Deliveries](../docs/ui/images/scr-18-1-my-deliveries.png)
 
 **Device:** Phone (driver at the store). **Purpose:** Show shipped orders on the driver's route, in stop order.
 
-- List of cards: Stop 1  Corner Mart #12; Stop 2  Fast Fuel Market.
+- Scan box (focused): scan the shipment label or type the store name, then Enter (ADR-012).
+- List of cards: Stop 1  Corner Mart #12; Stop 2  Fast Fuel Market. Tapping a card opens confirm delivery.
 
 ### SCR-18.2 — Confirm Delivery
 
-![SCR-18.2 Confirm Delivery](../docs/UI/images/scr-18-2-confirm-delivery.png)
+![SCR-18.2 Confirm Delivery](../docs/ui/images/scr-18-2-confirm-delivery.png)
 
 **Device:** Phone (driver at the store). **Purpose:** Enter delivered quantities and who received the order.
 
+- Scan box (focused): scan the item UPC to jump to that line.
 - Details shown: Store, Order.
-- List of cards: Cola 12 oz can; Potato chips 8 oz.
-- Fields: Received by (required), Note (required).
+- Each line is a card with the item name, quantity shipped (read only), and a **Delivered** number field. The field starts as the quantity shipped. The driver can type a smaller number. A higher number is rejected.
+- Fields: Received by (required), Note (required when any delivered quantity differs from shipped).
 - Buttons: Confirm delivery.
 
 ### SCR-18.3 — Delivery History
 
-![SCR-18.3 Delivery History](../docs/UI/images/scr-18-3-delivery-history.png)
+![SCR-18.3 Delivery History](../docs/ui/images/scr-18-3-delivery-history.png)
 
 **Device:** Office computer. **Purpose:** Show past deliveries and exceptions.
 
@@ -252,12 +254,12 @@ This feature is done when all of these are true:
 - [ ] All 7 Gherkin scenarios are automated and pass in the build.
 - [ ] The 4 API endpoints match the API Requirements table, are in the OpenAPI file, and have tests for success and for every listed error.
 - [ ] The role rules are enforced on the server for every endpoint, with a test for a role that is not allowed.
-- [ ] The screens (SCR-18.1, SCR-18.2, SCR-18.3) match the images in `docs/UI`, and were checked on: office computer, phone (driver at the store).
+- [ ] The screens (SCR-18.1, SCR-18.2, SCR-18.3) match the images in `docs/ui`, and were checked on: office computer, phone (driver at the store).
 - [ ] Validation messages show next to the field, and what the user typed stays on the screen after an error.
 - [ ] Database changes (tables, keys, unique rules, not-null rules, checks) are in a migration script and match the Initial Data Model.
 - [ ] Every create, edit, delete, and status change writes an audit log entry (who, when, what changed).
 - [ ] Screens were checked on a phone-size screen (390 px wide) with large tap targets.
-- [ ] These non-functional checks pass (see [NFR](../docs/NFR.md)): NFR-U3, NFR-U4, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D2, NFR-A1, NFR-M1.
+- [ ] These non-functional checks pass (see [NFR](../docs/nfr/nfr.md)): NFR-U3, NFR-U4, NFR-U9, NFR-P1, NFR-S1, NFR-S2, NFR-S4, NFR-D1, NFR-D2, NFR-A1, NFR-M1.
 - [ ] The code is reviewed in a pull request and merged into `main` with no open critical bugs.
 - [ ] This feature file, the UI images, and the API table are updated if anything changed during the build.
 
